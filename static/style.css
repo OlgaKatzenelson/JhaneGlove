@@ -1,0 +1,155 @@
+/*               MENU BUTTONS            */
+.ui-button-icon-primary.ui-icon.trainIcon {
+    height: 200px;
+    width: 200px;
+    margin: 10px 0 2em -50px;
+    text-align: center;
+    left: 50%;
+    top: 5px;
+    background-image: url("images/icons/tool.png") !important;
+    background-size: 80px 60px;
+}
+
+.ui-button-icon-primary.ui-icon.recognizeIcon {
+    height: 32px;
+    width: 32px;
+    margin: 10px 0 2em -16px;
+    text-align: center;
+    left: 50%;
+    top: 5px;
+    background-image: url("images/icons/rec.jpg") !important;
+}
+
+.ui-button-icon-primary.ui-icon.homeIcon {
+    height: 32px;
+    width: 32px;
+    margin: 0px 0 2em -15px;
+    text-align: center;
+    left: 50%;
+    top: 5px;
+    background-image: url("images/icons/home.jpeg") !important;
+    background-size: 30px 30px;
+}
+
+.ui-button-icon-primary.ui-icon.calibrateIcon {
+    height: 200px;
+    width: 200px;
+    margin: 10px 0 2em -50px;
+    text-align: center;
+    left: 50%;
+    top: 5px;
+    background-image: url("images/icons/calibration.jpeg") !important;
+    background-size: 90px 90px;
+}
+
+.ui-button-icon-primary.ui-icon.addDataIcon {
+    height: 32px;
+    width: 32px;
+    margin: 0px 0 2em -15px;
+    text-align: center;
+    left: 50%;
+    top: 5px;
+    background-image: url("images/icons/add_data.jpeg") !important;
+    background-size: 30px 30px;
+}
+
+.ui-button-icon-primary.ui-icon.testIcon {
+    height: 32px;
+    width: 32px;
+    margin: 0px 0 2em -15px;
+    text-align: center;
+    left: 50%;
+    top: 5px;
+    background-image: url("images/icons/test.jpeg") !important;
+    background-size: 30px 30px;
+}
+
+.ui-button-icon-primary.ui-icon.readyIcon {
+    height: 30px;
+    width: 30px;
+    margin: 0px 0 2em -50px;
+    text-align: center;
+    left: 50%;
+    top: 10px;
+    background-image: url("images/icons/ready.jpeg") !important;
+    background-size: 30px 30px;
+}
+
+.ui-button-text-icon-primary .ui-button-text {
+    display: block;
+    position: static;
+    padding: 70px 10px 5px 10px;
+}
+
+#do_train.ui-button-text-icon-primary .ui-button-text {
+    display: block;
+    position: static;
+    padding: 0px 0px 5px 10px;
+}
+
+#go_train{
+	width: 400px;
+	height: 200px;
+}
+
+#go_recognize{
+	width: 400px;
+}
+
+#go_home{
+	width: 40px;
+}
+
+#go_home, #do_train, #do_test, #exec_train{
+	height: 40px;
+	margin-right: 5px;
+	margin-top: 15px;
+}
+
+#do_train, #do_test, #exec_train{
+	width: 160px;
+}
+
+#do_calibrate{
+	width: 400px;
+	height: 200px;
+}
+
+#ready{
+	width: 130px;
+	height: 50px;
+	top: -70px;
+	left: 40px;
+}
+#ready.ui-button-text-icon-primary .ui-button-text{
+	padding: 0px 10px 5px 52px !important;
+}
+
+/*               END OF MENU BUTTONS            */
+
+.clear{
+	padding:5px;
+	clear:both
+}
+
+
+/* Training icons */
+#training_icon{
+	width: 180px;
+	height: 180px;
+	margin-top: 10px;
+}
+
+/*  Global view */
+
+#menu_content{
+	top: 160px;
+	left: 50px;
+	position: absolute;
+	width: 400px;
+}
+
+#bottom_menu{
+	position: absolute;
+	top: 200px;
+}

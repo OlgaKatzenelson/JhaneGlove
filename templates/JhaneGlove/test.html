@@ -1,0 +1,47 @@
+{% extends "base.html" %} {% block content %}
+
+<div id= 'menu_content'>
+	<button id="do_calibrate">Calibrate</button>
+	<div id = 'bottom_menu'>
+		<div class='clear' />
+		<button id="go_home" />
+		<button id="do_train">Training</button>
+		<button id="do_test">Test</button>
+	</div>
+</div>
+
+
+
+<script type="text/javascript">
+	
+	var onlyonce = 0;
+	$(document).ready(function() {
+		 getScripts();
+
+		function getScripts() {
+			if (onlyonce === 0) {
+				grabScript();
+			}
+		};
+
+		function grabScript() {
+			onlyonce = 1;
+			$.getScript("/media/navigation_management.js", function() {});
+			$.getScript("/media/dynamic_css_management.js", function() {});
+		} 
+
+		/* var scriptArray=new Array();
+		scriptArray[0]="/media/navigation_management.js";
+		scriptArray[1]="/media/dynamic_css_management.js";
+		loadScriptFiles(scriptArray); */
+
+		
+
+		var controller = new NetworkManagement();
+
+		$("#do_test").bind('click', {ths: controller}, controller.testTheNetwork);
+
+	});
+</script>
+
+{% endblock %}

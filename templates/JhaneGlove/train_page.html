@@ -1,0 +1,53 @@
+{% extends "base.html" %} {% block content %}
+
+
+<div id= 'menu_content'>
+	<div id= 'step'>Step : Adding information</div>
+	
+	{% load staticfiles %}
+	<img id = "training_icon" src="{% static "images/set/0.jpg" %}" />
+
+	<button type="submit" id="ready">Ready</button>
+	<div id = 'bottom_menu'>
+		<div class='clear' />
+		<button id="go_home" />
+		<button id="exec_train" disabled>Train</button>
+		<button id="do_test" disabled>Test</button>
+	</div>	
+</div>
+
+<script type="text/javascript">
+	var onlyonce = 0;
+	$(document).ready(function() {
+		getScripts();
+
+		function getScripts() {
+			if (onlyonce === 0) {
+				grabScript();
+			}
+		};
+
+		function grabScript() {
+			onlyonce = 1;
+			$.getScript("/media/navigation_management.js", function() {});
+			$.getScript("/media/dynamic_css_management.js", function() {});
+		} 
+		
+		
+		var controller = new NetworkManagement();
+		
+		var info_for_user = "Please fix your gesture and when you're ready, click 'Ready'<br>"+
+							" Every gesture is repeated 4 times.   "
+		$(".info_message").message({type:"info", message: info_for_user});
+		
+		$("#ready").bind('click', {ths: controller}, controller.take_snapshot);
+		
+		$("#exec_train").bind('click', {ths: controller}, controller.trainTheNetwork);
+		
+		$("#do_test").bind('click', {ths: controller}, controller.testTheNetwork);
+
+		
+	});
+</script>
+
+{% endblock %}
