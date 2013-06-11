@@ -1,35 +1,19 @@
 from django.shortcuts import render
-import os
 
 from django.http import  HttpResponse
 #from django.conf import settings
 from django.contrib.sessions.models import Session
 
-from JhaneGlove.models import Cell, NN, SerialReader
+from JhaneGlove.models import Cell, NN, DataReader
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 import json
 
-READER = SerialReader()
 nn = NN( id = 1)
-PATH_TO_FILE = os.path.dirname(os.path.dirname(__file__)) + '/serialReader/data.txt'
+dataReader = DataReader()
 
 #@login_required
 def index(request):
-    print '----------------- ?'
-
-#    f = open( path, 'r' )
-    f = file(PATH_TO_FILE, "r")
-    try:
-        last_line = f.readlines()[-1]
-#    for line in f:
-#        print( line )
-        print last_line
-    except:
-        print "Empty file"
-    f.close()
-    print 'end ----------------- ?'
-
     return render(request, 'JhaneGlove/index.html')
 
 def callibration(request):
@@ -50,7 +34,7 @@ def addData(request):
     dataClass = request.POST['class_id']
     #   request.session
     forTest  = request.POST['for_test']
-    data = getDataFromSerial()
+    data = dataReader.getDataFromSerial()
     if(data != ''):
         cell = Cell(userId = 0)
         cell.data = data
@@ -59,7 +43,7 @@ def addData(request):
         #         nn = NN.objects.get(id = 1)
         #     except ObjectDoesNotExist:
         #         nn = NN(id = 1)
-        print '******* forTest = {0}'.format(forTest);
+        print '******* forTest = {0}   ***** dataClass = {1}'.format(forTest, dataClass);
         if (forTest == '1'):
             nn.addTestCell(cell)
         else:
@@ -70,7 +54,7 @@ def addData(request):
         return getHttpResponse(0, "Arduino doesn't connected.   ")
 
     print "ajax_start id={0}".format(dataClass)
-    print nn.cells
+    print nn.cells.__len__()
     return getHttpSuccessResponse()
 
 
@@ -89,22 +73,10 @@ def trainTheNetwork(request):
     return getHttpResponse(1, userMessage)
 
 def ajaxRecognize(request):
-    data = getDataFromSerial()
+    data = dataReader.getDataFromSerial()
     result = nn.activate(data.split())
     print "Recognize result: {}".format(result)
     return getHttpResponse(1, result[0])
-
-def getDataFromSerial():
-    data = ''
-    try:
-    #         rr  = SerialReader();
-    #         print "reader   :{0}".format(rr != None);
-        data = READER.readLine()
-    #         data = rr.readLine()
-    except:
-        print 'ReadLine error'
-        # data = "2568 540 -17004 -34 -17 -2"
-    return data
 
 def getHttpResponse(status, message):
     to_json = {
@@ -116,4 +88,5 @@ def getHttpResponse(status, message):
 
 def getHttpSuccessResponse():
     return getHttpResponse(1, '')
+
 

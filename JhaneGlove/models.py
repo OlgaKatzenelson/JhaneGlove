@@ -1,16 +1,18 @@
 from django.db import models
 import datetime
-from django.utils import timezone
-
-
+import os
+import pickle
 import pybrain
+
 from pybrain.datasets import *
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.structure import *
 
-import pickle
-import serial
+from django.utils import timezone
+from django import template
+
+register = template.Library()
 
 class Cell(models.Model):
     id = models.AutoField(primary_key=True)
@@ -19,57 +21,13 @@ class Cell(models.Model):
     userId = models.IntegerField(0)
 
     def __unicode__(self):
-        return self.data + " : " + self.dataClass
-
-# Singelton
-class SerialReader(models.Model):
-#         ser = serial.Serial('/dev/tty.usbserial-AH01GOI0',9600,timeout=1) 
-
-#     def __init__(self, *args, **kwargs):
-#         super(SerialReader, self).__init__() 
-#         # open serial port
-#         try:
-# #             self.ser = serial.Serial('/dev/tty.usbserial-AH01GOI0',9600,timeout=1) 
-# #             self.ser.close()
-# #             self.ser.open()
-#             print "Arduino connected !!!!!"
-# #             print self.ser.readline()
-#         except:    
-#             print "Arduino doesn't connected"
-#         
-#         @classmethod
-#         def load(cls):
-#             try:
-#                 return cls.objects.get()
-#             except cls.DoesNotExist:
-#                 return cls()
-#         
-#         def save(self, *args, **kwargs):
-#             self.id=1
-#             super(SerialReader, self).save(*args, **kwargs)
+        return str(self.data) + " : " + str(self.dataClass)
 
     def delete(self, *args, **kwargs):
         pass
 
     def close(self):
         self.ser.close()
-
-    def readLine(self):
-        print '------readLine'
-        self.ser = serial.Serial('/dev/tty.usbserial-AH01GOI0',9600)
-        self.ser.close()
-        self.ser.open()
-        data = self.ser.readline()
-        data = self.ser.readline()
-        self.ser.close()
-
-        #             if self.ser.isOpen() == True:
-        #                 print self.ser.name + " is open"
-        #             else:
-        #                 print "port closed"
-        #                 self.ser.open()
-        return data
-
 
 class NN(models.Model):
     TEST_MESSAGE = '{0} will be {1}'
@@ -154,27 +112,27 @@ class NN(models.Model):
 
     def test(self):
         totalCounter = 8;
-        totalErrors = 0;
+        totalSuccess = 0;
 
         if(len(self.testCells)>0):
             totalCounter = len(self.testCells)
             for cell in self.testCells:
                 data = cell.data.split()
-                totalErrors+=self.activateAndTest(data , cell.dataClass)
+                totalSuccess+=self.activateAndTest(data , cell.dataClass)
         else:
-            totalErrors+=self.activateAndTest([2580, 480, -16840, -32, -16, -3], 0)
-            totalErrors+=self.activateAndTest([2474, 508, -16708, -31, -10, -4], 0)
-            totalErrors+=self.activateAndTest([2400, -7940, -14868, -36, -18, -2], 1)
-            totalErrors+=self.activateAndTest([2236, -7822, -14720, -94, -17, -13], 1)
-            totalErrors+=self.activateAndTest([1972, 9908, -13348, -198, -17, -8], 2)
-            totalErrors+=self.activateAndTest([2020, 10006, -13080, 11, -20, 2], 2)
-            totalErrors+=self.activateAndTest([-6900, 528, -15932, -88, -75, 23], 3)
-            totalErrors+=self.activateAndTest([-8328, 400, -14460, -40, -52, -5], 3)
+            totalSuccess+=self.activateAndTest([2580, 480, -16840, -32, -16, -3], 0)
+            totalSuccess+=self.activateAndTest([2474, 508, -16708, -31, -10, -4], 0)
+            totalSuccess+=self.activateAndTest([2400, -7940, -14868, -36, -18, -2], 1)
+            totalSuccess+=self.activateAndTest([2236, -7822, -14720, -94, -17, -13], 1)
+            totalSuccess+=self.activateAndTest([1972, 9908, -13348, -198, -17, -8], 2)
+            totalSuccess+=self.activateAndTest([2020, 10006, -13080, 11, -20, 2], 2)
+            totalSuccess+=self.activateAndTest([-6900, 528, -15932, -88, -75, 23], 3)
+            totalSuccess+=self.activateAndTest([-8328, 400, -14460, -40, -52, -5], 3)
 
-        print "total {0}  errors {1}".format(totalCounter, totalErrors);
-        if(totalCounter == totalErrors):
+        print "total {0}  errors {1}".format(totalCounter, totalSuccess);
+        if(totalCounter == totalSuccess):
             return 0;
-        return totalCounter / totalErrors * 100
+        return   float(totalSuccess) / totalCounter * 100
     #         print self.TEST_MESSAGE.format(self.net.activate([2580, 480, -16840, -32, -16, -3]), '0')
     #         print self.TEST_MESSAGE.format(self.net.activate([2474, 508, -16708, -31, -10, -4]), '0')
     #         print self.TEST_MESSAGE.format(self.net.activate([2400, -7940, -14868, -36, -18, -2]), '1')
@@ -253,3 +211,38 @@ class NN(models.Model):
         self.ds.addSample((-6900, 528, -15932, -88, -75, 23) , (3))  # -pered
         self.ds.addSample((-8536, 136, -14064, -20, -5, -21) , (3))
         self.ds.addSample((-8328, 364, -14460, -31, -52, -5) , (3))
+
+class DataReader(models.Model):
+    PATH_TO_FILE = os.path.dirname(os.path.dirname(__file__)) + '/serialReader/data.txt'
+    data = models.CharField(max_length=200)
+
+    def __unicode__(self):
+        return self.PATH_TO_FILE
+
+        # The function tried to read data twice. Because of instability of the Arduino
+    def getDataFromSerial(self):
+        self.data = ''
+        data = self.readDataFromSerial()
+        if self.data == '':
+            self.data = self.readDataFromSerial
+
+        return self.data
+
+    def readDataFromSerial(self):
+        data = ''
+
+        f = file(self.PATH_TO_FILE, "r")
+        try:
+            data = f.readlines()[-1] #last line
+            print data
+            if self.contains(data , "Arduino") or data.split().__len__() != 6:
+                data = ''
+        except:
+            print "Empty file"
+#            data = ''
+            # data = "2568 540 -17004 -34 -17 -2"
+        f.close()
+
+    @register.filter()
+    def contains(self, value, arg):
+        return arg in value
