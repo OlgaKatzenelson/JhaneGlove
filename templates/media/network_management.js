@@ -114,5 +114,30 @@ function NetworkManagement () {
 	        $(".message").message({type:"error", message: res.responseText});
 	    }
 	};
+
+
+    this.begin_to_recognize = function(event) {
+        var self_obj = event.data.ths;
+        $.ajax({ type:"POST",
+            url:"/glow/doRecognize/",
+            complete : self_obj.show_result_of_recognition
+        });
+        return false;
+    };
+
+
+    this.show_result_of_recognition = function(res, status, event) {
+//        var data = $.parseJSON(res.responseText);
+        if (status == "success") {
+//    	    	alert(res.responseText["message"]);
+            $("#recognized").text( res.responseText);
+            $(".start_recognize").click();
+        }
+        else
+        {
+            $(".message").message({type:"error", message:res.responseText});
+            $(".start_recognize").click();
+        }
+    }
 }
 

@@ -13,6 +13,7 @@ class Command(BaseRunserverCommand):
 
     def inner_run(self, *args, **options):
 
+        print "yps-------------------"
         s = Session()
         settings.SESSION_KEY = s.session_key
 #        path = os.path.join(os.path.dirname(__file__), '../../../serialReader/reader.py')

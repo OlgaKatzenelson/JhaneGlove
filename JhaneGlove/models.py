@@ -31,6 +31,7 @@ class Cell(models.Model):
 
 class NN(models.Model):
     TEST_MESSAGE = '{0} will be {1}'
+    INPUT_SIZE = 6
     cells = []
     testCells = []
     ds = models.BinaryField()
@@ -40,11 +41,11 @@ class NN(models.Model):
 
     def __init__(self, *args, **kwargs):
         super(NN, self).__init__(*args, **kwargs)
-        self.ds = ClassificationDataSet(6, 1, nb_classes=5)
+        self.ds = ClassificationDataSet(self.INPUT_SIZE, 1, nb_classes=5)
         self.net = FeedForwardNetwork()
         #         self.ds = ClassificationDataSet(6, 1, nb_classes=4)
         #         self.net = FeedForwardNetwork()
-        self.net.addInputModule(LinearLayer(6, name='in'))
+        self.net.addInputModule(LinearLayer(self.INPUT_SIZE, name='in'))
         self.net.addModule(SigmoidLayer(50, name='hidden_0')) #40
         #         self.net.addModule(SigmoidLayer(16, name='hidden_1'))
         self.net.addOutputModule(LinearLayer(1, name='out'))
@@ -129,7 +130,7 @@ class NN(models.Model):
             totalSuccess+=self.activateAndTest([-6900, 528, -15932, -88, -75, 23], 3)
             totalSuccess+=self.activateAndTest([-8328, 400, -14460, -40, -52, -5], 3)
 
-        print "total {0}  errors {1}".format(totalCounter, totalSuccess);
+        print "total {0}  success {1}".format(totalCounter, totalSuccess);
         if(totalCounter == totalSuccess):
             return 0;
         return   float(totalSuccess) / totalCounter * 100
@@ -214,19 +215,19 @@ class NN(models.Model):
 
 class DataReader(models.Model):
     PATH_TO_FILE = os.path.dirname(os.path.dirname(__file__)) + '/serialReader/data.txt'
-    data = models.CharField(max_length=200)
+#    data = models.CharField(max_length=200)
 
-    def __unicode__(self):
-        return self.PATH_TO_FILE
+#    def __unicode__(self):
+#        return self.data
 
         # The function tried to read data twice. Because of instability of the Arduino
     def getDataFromSerial(self):
-        self.data = ''
+        data = ''
         data = self.readDataFromSerial()
-        if self.data == '':
-            self.data = self.readDataFromSerial
+        if data == '':
+            data = self.readDataFromSerial()
 
-        return self.data
+        return data
 
     def readDataFromSerial(self):
         data = ''
@@ -235,13 +236,15 @@ class DataReader(models.Model):
         try:
             data = f.readlines()[-1] #last line
             print data
-            if self.contains(data , "Arduino") or data.split().__len__() != 6:
+            if self.contains(data , "Arduino") or data.split().__len__() != NN.INPUT_SIZE:
                 data = ''
         except:
             print "Empty file"
-#            data = ''
             # data = "2568 540 -17004 -34 -17 -2"
         f.close()
+
+        return data
+
 
     @register.filter()
     def contains(self, value, arg):

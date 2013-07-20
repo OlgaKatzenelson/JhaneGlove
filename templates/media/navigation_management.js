@@ -1,7 +1,7 @@
 
 
 //             *GO
-$("#go_recognize").click(function() { $(location).attr('href','/glow/rec'); });
+$("#go_recognize").click(function() { $(location).attr('href','/glow/recognition'); });
 $("#go_train").click(function() { $(location).attr('href','/glow/test'); });
 $("#go_home").click(function() {$(location).attr('href','/glow'); });
 

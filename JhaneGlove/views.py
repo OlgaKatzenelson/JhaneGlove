@@ -5,9 +5,11 @@ from django.http import  HttpResponse
 from django.contrib.sessions.models import Session
 
 from JhaneGlove.models import Cell, NN, DataReader
+from JhaneGlovePyCharm import *
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
 import json
+import time
 
 nn = NN( id = 1)
 dataReader = DataReader()
@@ -35,6 +37,7 @@ def addData(request):
     #   request.session
     forTest  = request.POST['for_test']
     data = dataReader.getDataFromSerial()
+    print 'test :: {0}'.format(data)
     if(data != ''):
         cell = Cell(userId = 0)
         cell.data = data
@@ -73,10 +76,16 @@ def trainTheNetwork(request):
     return getHttpResponse(1, userMessage)
 
 def ajaxRecognize(request):
+    time.sleep(1)
     data = dataReader.getDataFromSerial()
-    result = nn.activate(data.split())
-    print "Recognize result: {}".format(result)
-    return getHttpResponse(1, result[0])
+    result = 'Unknown'
+    if data != '':
+        result = nn.activate(data.split())[0]
+    print "Here"
+#    result = data
+    print "Recognize result: {0}      data {1}".format(result, data)
+#    return getHttpResponse(1, result[0])
+    return getHttpResponse(1, result)
 
 def getHttpResponse(status, message):
     to_json = {

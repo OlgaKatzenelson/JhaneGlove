@@ -1,5 +1,10 @@
 import os
 import serial
+import sys
+import random
+import time
+sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+
 print('----------------------- ;) ')
 
 path = os.path.dirname(os.path.dirname(__file__)) + '/serialReader/data.txt'
@@ -15,12 +20,15 @@ except:
     print "Arduino doesn't connected"
     f.write("Arduino doesn't connected\n")
     f.flush()
+#    ARDUINO_ERROR = "Arduino doesn't connected\n";
 
 if isOpened == True:
     while True:
          # open serial port
         try:
-            f.write(ser.readline())
+            data = ser.readline();
+#            data = "o g o g g {0}\n".format(random.randint(0, 4))
+            f.write(data)
     #             print self.
         except:
             print "Arduino doesn't connected"
@@ -30,6 +38,14 @@ if isOpened == True:
         f.flush()
 
     f.close()
+
+#        time.sleep(10)
+
+
+
+
+
+
 # 	while True:
 # 		words = ser.readline().split()
 # 		print(words[1])

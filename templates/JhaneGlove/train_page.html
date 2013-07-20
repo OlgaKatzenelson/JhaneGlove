@@ -1,11 +1,11 @@
 {% extends "base.html" %} {% block content %}
 
 
-<div id= 'menu_content'>
+<div id= 'menu_content'>{% csrf_token %}
 	<div id= 'step'>Step : Adding information</div>
 	
 	{% load staticfiles %}
-	<img id = "training_icon" src="{% static "images/set/0.jpg" %}" />
+	<img id = "training_icon" src="{{ STATIC_URL }}images/set/0.jpg" />
 
 	<button type="submit" id="ready">Ready</button>
 	<div id = 'bottom_menu'>

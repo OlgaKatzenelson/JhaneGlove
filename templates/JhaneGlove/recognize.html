@@ -1,7 +1,7 @@
 {% extends "base.html" %} {% block content %}
 <p>Recognize</p>
-{% csrf_token %}
-<div id = "recognized">{% csrf_token %}</div>
+<div>{% csrf_token %}</div>
+<div id = "recognized"></div>
 <button type="submit" value = "1" class="start_recognize">Start</button>
 
 
@@ -9,34 +9,43 @@
 	$(document).ready(function() {
 		$.getScript("/media/navigation_management.js"); 
 		$.getScript("/media/dynamic_css_management.js");
-		
-		var begin_to_recognize = function() {
-			var args = {
-				type : "POST",
-				url : "/glow/do_recognize/",
-				//complete:show_result_of_recognition
-			};
-			$.ajax(args);
-		};
 
-		$(".start_recognize").click(begin_to_recognize);
+
+        var controller = new NetworkManagement();
+        $(".start_recognize").bind('click', {ths: controller}, controller.begin_to_recognize);
+
+//		var begin_to_recognize = function() {
+//			var args = {
+//				type : "POST",
+//				url : "/glow/do_recognize/",
+//
+////                url : "/glow/testData/",
+//				complete:show_result_of_recognition
+//			};
+//			$.ajax(args);
+//		};
+
+//		$(".start_recognize").click(begin_to_recognize);
 		
 		//begin_to_recognize();
 		
-		var show_result_of_recognition = function(res, status) {
-    	    if (status == "success") {
-    	    	alert("ok");
-    	    }
-    	    else
-    	    {
-    	        display_message(res.responseText, $("#recognized"));
-    	    }
-    	}
-    	
-    	var display_message = function(msg, elem) {
-    	    var msg_div = $('<div><p>'+msg+'</p></div>');
-    	    elem.append(msg_div).fadeIn('slow').animate({opacity: 1.0}, 7000).fadeOut('slow',function() { msg_div.remove(); });
-    	};
+//		var show_result_of_recognition = function(res, status) {
+//    	    if (status == "success") {
+////    	    	alert(res.responseText["message"]);
+//                display_message(res.responseText, $("#recognized"));
+//                begin_to_recognize();
+//    	    }
+//    	    else
+//    	    {
+//    	        display_message(res.responseText, $("#recognized"));
+//                begin_to_recognize();
+//    	    }
+//    	}
+//
+//    	var display_message = function(msg, elem) {
+//    	    var msg_div = $('<div><p>'+msg+'</p></div>');
+//    	    elem.append(msg_div).fadeIn('slow').animate({opacity: 1.0}, 7000).fadeOut('slow',function() { msg_div.remove(); });
+//    	};
 	});
 </script>
 
