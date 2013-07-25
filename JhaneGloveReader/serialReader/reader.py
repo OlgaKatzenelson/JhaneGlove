@@ -39,11 +39,13 @@ def readSerial(s):
 def main():
     s = socket.socket()         # Create a socket object
     host = socket.gethostname() # Get local machine name
-    port = 12345                # Reserve a port for your service.
+    port = 12346                # Reserve a port for your service.
 
     s.connect(('127.0.0.1', port))
 #    print s.recv(1024)
 
+#    s.send("1;1234;kyky1\n");
+#    s.send("1;333333;kyky2\n");
     readSerial(s)
 
     s.close

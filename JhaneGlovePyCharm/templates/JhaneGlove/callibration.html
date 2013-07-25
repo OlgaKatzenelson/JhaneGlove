@@ -1,0 +1,42 @@
+{% extends "base.html" %} {% block content %}
+<p>Calibration</p>
+<div>{% csrf_token %}</div>
+    <div id= 'menu_content'>
+        <button type="submit" id="start_calibration">Start</button>
+        <button type="submit" id="stop_calibration" disabled>Stop</button>
+        <div id = 'bottom_menu'>
+            <div class='clear' />
+            <button id="go_home" />
+            <button id="do_train">Training</button>
+            <button id="do_test">Test</button>
+        </div>
+    </div>
+
+
+
+    <script type="text/javascript">
+        var onlyonce = 0;
+        $(document).ready(function() {
+            getScripts();
+
+            function getScripts() {
+                if (onlyonce === 0) {
+                    grabScript();
+                }
+            };
+
+            function grabScript() {
+                onlyonce = 1;
+                $.getScript("/media/navigation_management.js", function() {});
+                $.getScript("/media/dynamic_css_management.js", function() {});
+            }
+
+
+            var controller = new CalibrationManagement();
+            $("#start_calibration").bind('click', {ths: controller}, controller.start_calibration);
+            $("#stop_calibration").bind('click', {ths: controller}, controller.stop_calibration);
+
+        });
+    </script>
+
+{% endblock %}

@@ -18,7 +18,7 @@ $(function() {
 });
 
 $(function() {
-	$("#do_calibrate").button({
+	$("#go_calibrate").button({
 		icons: { primary: "calibrateIcon" }
 	})
 });
@@ -48,6 +48,11 @@ $(function() {
 	$("#ready").button({
 		icons: { primary: "readyIcon" }
 	})
+});
+
+$(function() {
+    $("#start_calibration, #stop_calibration").button({
+    })
 });
 
 
