@@ -4,11 +4,14 @@ import asyncore
 import collections
 import logging
 import socket
+import time
 
 import MySQLdb
 
 
 MAX_MESSAGE_LENGTH = 1024
+host = 'localhost'
+port = 12345
 
 db = MySQLdb.connect(host="localhost",
     user="root",
@@ -19,9 +22,10 @@ db = MySQLdb.connect(host="localhost",
 #  you execute all the query you need
 cursor = db.cursor()
 
-sql = """INSERT INTO raw_data(user_id,
-         time, data)
-         VALUES (%s, %s, %s)"""
+selectUserUpdateSql = """SELECT minValuesList, maxValuesList FROM JhaneGlove_userdata WHERE userId = %s"""
+
+insertSql = """INSERT INTO JhaneGlove_serialrawdata(userId, time, data)
+                VALUES (%s, %s, %s)"""
 
 
 
@@ -46,12 +50,13 @@ class RemoteClient(asyncore.dispatcher):
                 if row:
                     try:
                         vals = row.split(";") #TODO check the length of array -> case of partial data
-                        cursor.execute(sql, (vals[0], vals[1], vals[2]))
+                        cursor.execute(insertSql, (vals[0], vals[1], vals[2]))
                         db.commit()
                     except MySQLdb.Error, e:
                         print ("An error has been passed. %s" %e)
                         db.rollback()
 #        self.host.broadcast(client_message)
+        self.host.check_for_client_updates()
 
     def handle_write(self):
         if not self.outbox:
@@ -65,8 +70,10 @@ class RemoteClient(asyncore.dispatcher):
 class Host(asyncore.dispatcher):
 
     log = logging.getLogger('Host')
+    count = 0
+    step = 0
 
-    def __init__(self, address=('localhost', 12346)):
+    def __init__(self, address=(host, port)):
         asyncore.dispatcher.__init__(self)
         self.create_socket(socket.AF_INET, socket.SOCK_STREAM)
         self.bind(address)
@@ -84,9 +91,26 @@ class Host(asyncore.dispatcher):
 
     def broadcast(self, message):
         self.log.info('Broadcasting message: %s', message)
-#        for remote_client in self.remote_clients:
-#            remote_client.say(message)
+        for remote_client in self.remote_clients:
+            remote_client.say(message)
 
+    def check_for_client_updates(self):
+        if(self.step >2):
+            self.step =0;
+            cursor.execute(selectUserUpdateSql, ('13'))
+            data=cursor.fetchone()    #fetchall()
+            minValuesList = data[0]
+            maxValuesList = data[1]
+            if(minValuesList != None and maxValuesList != None):
+                message = ""
+                if(self.count==0):
+                    message = "min:" + minValuesList.replace('"', '') + "\n"
+                    self.count+=1
+                else:
+                    message ="max:" + maxValuesList.replace('"', '')  + "\n"
+                    self.count=0
+                self.broadcast(message)
+        self.step+=1
 
 def main():
 
