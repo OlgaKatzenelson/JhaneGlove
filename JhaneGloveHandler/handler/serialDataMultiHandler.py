@@ -8,6 +8,7 @@ import time
 
 import MySQLdb
 
+userId = '13'
 
 MAX_MESSAGE_LENGTH = 1024
 host = 'localhost'
@@ -22,7 +23,9 @@ db = MySQLdb.connect(host="localhost",
 #  you execute all the query you need
 cursor = db.cursor()
 
-selectUserUpdateSql = """SELECT minValuesList, maxValuesList FROM JhaneGlove_userdata WHERE userId = %s"""
+selectUserDataSql = """SELECT minValuesList, maxValuesList, isDirt FROM JhaneGlove_userdata WHERE userId = %s"""
+updateUserDataDirtBitSql = """UPDATE JhaneGlove_userdata SET isDirt=%s WHERE userId = %s"""
+
 
 insertSql = """INSERT INTO JhaneGlove_serialrawdata(userId, time, data)
                 VALUES (%s, %s, %s)"""
@@ -50,8 +53,9 @@ class RemoteClient(asyncore.dispatcher):
                 if row:
                     try:
                         vals = row.split(";") #TODO check the length of array -> case of partial data
-                        cursor.execute(insertSql, (vals[0], vals[1], vals[2]))
-                        db.commit()
+                        if(len(vals) == 3):
+                            cursor.execute(insertSql, (vals[0], vals[1], vals[2]))
+                            db.commit()
                     except MySQLdb.Error, e:
                         print ("An error has been passed. %s" %e)
                         db.rollback()
@@ -71,7 +75,7 @@ class Host(asyncore.dispatcher):
 
     log = logging.getLogger('Host')
     count = 0
-    step = 0
+    stepCounter = 0
 
     def __init__(self, address=(host, port)):
         asyncore.dispatcher.__init__(self)
@@ -95,22 +99,34 @@ class Host(asyncore.dispatcher):
             remote_client.say(message)
 
     def check_for_client_updates(self):
-        if(self.step >2):
-            self.step =0;
-            cursor.execute(selectUserUpdateSql, ('13'))
+        if(self.stepCounter >2):
+            self.stepCounter =0;
+            cursor.execute(selectUserDataSql, (userId))
             data=cursor.fetchone()    #fetchall()
+            if(data == None):
+                return
             minValuesList = data[0]
             maxValuesList = data[1]
-            if(minValuesList != None and maxValuesList != None):
-                message = ""
-                if(self.count==0):
-                    message = "min:" + minValuesList.replace('"', '') + "\n"
-                    self.count+=1
-                else:
-                    message ="max:" + maxValuesList.replace('"', '')  + "\n"
-                    self.count=0
+            isDirt = data[2]
+            message = None
+
+#            isDirt ==1 : calibration started => send "start" event to arduino
+#            isDirt ==2 : "start" event already sent to arduino => if minValuesList ready, send to arduino
+#            isDirt ==3 : minValuesList already sent to arduino => if maxValuesList ready, send to arduino
+
+            if(isDirt == 1):
+                message = "calStart\n"
+                cursor.execute(updateUserDataDirtBitSql, (2, userId))  #update flag
+            elif(isDirt == 2 and minValuesList != None):
+                message = "min:" + minValuesList.replace('"', '') + "\n"
+                cursor.execute(updateUserDataDirtBitSql, (3, userId))  #update flag
+            elif(isDirt == 3 and minValuesList != None):
+                message ="max:" + maxValuesList.replace('"', '')  + "\n"
+                cursor.execute(updateUserDataDirtBitSql, (0, userId))  #update flag
+
+            if(message != None):
                 self.broadcast(message)
-        self.step+=1
+        self.stepCounter+=1
 
 def main():
 
@@ -121,14 +137,9 @@ def main():
 #        print (row[0])
 
     logging.basicConfig(level=logging.INFO)
+    logging.info('Looping')
     logging.info('Creating host')
     host = Host()
-#    logging.info('Creating clients')
-#    print (host.getsockname())
-#    alice = Client(host.getsockname(), 'Alice')
-#    bob = Client(host.getsockname(), 'Bob')
-#    alice.say('Hello, everybody!')
-    logging.info('Looping')
     asyncore.loop()
 
 

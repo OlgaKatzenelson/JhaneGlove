@@ -10,10 +10,15 @@ import time
 
 ARDUINO_ERROR = "Arduino doesn't connected\n";
 port = 12345                # Reserve a port for your service.
+userId = 13
+adruinoUpdated = True;
 
 def updateSerWithRecvData(s, ser):
     updateMsg = getRecvData(s)
     if(updateMsg != None):
+        if(updateMsg.startswith("min")):
+            global adruinoUpdated
+            adruinoUpdated = False
         ser.write(updateMsg)
         ser.flush()
         time.sleep(1.5)
@@ -37,10 +42,17 @@ def readSerial(s):
                 try:
                     data = ser.readline();
                     ser.flush()
-                    print "data {0}".format(data)
-                    ts = str(int(time.time()))
-                    fullData = '1;' + ts + ";" + data
-                    s.send(fullData)
+                    print data
+                    global adruinoUpdated
+                    if(adruinoUpdated and data.startswith("data:")):
+                        ts = str(int(time.time()))
+                        fullData = str(userId) +';' + ts + ";" + data[len("data:") :]
+                        s.send(fullData)
+                    elif(data.startswith("Ready")): #calibration data already updated on arduino
+                        adruinoUpdated = True
+                    else:
+                        s.send("ignore the data") #keep connection
+
                 except IOError as e:
                     print "I/O error({0}): {1}".format(e.errno, e.strerror)
                     print ARDUINO_ERROR

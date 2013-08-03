@@ -20,6 +20,7 @@ class UserData(models.Model):
     stopCallibrationTime = models.BigIntegerField(0)
     minValuesList = models.TextField(null=True)
     maxValuesList = models.TextField(null=True)
+    isDirt = models.IntegerField(0)
 
     def __unicode__(self):
         return str(self.userId) + "( " + str(self.startCallibrationTime) + " : " + str(self.stopCallibrationTime) + " )"

@@ -16,8 +16,6 @@ MPU6050 accelgyro;
 
 SensorsData sd;
 SystemState state;
-int id = 1;
-
 char str[512];
 
 bool blinkState = false;
@@ -45,11 +43,6 @@ void readFlexData(int* degrees1, int* degrees2, int* degrees3){
       *degrees2 = map(flex2, sd.flexDataMin[1], sd.flexDataMax[1], 0, FLEX_MAX_RANGE);
       *degrees3 = map(flex3, sd.flexDataMin[2], sd.flexDataMax[2], 0, FLEX_MAX_RANGE);
   }
-
-  // print out the result
-//  Serial.print("flex: {"); Serial.print(flex1,DEC);Serial.print(": "); Serial.print(*degrees1,DEC);Serial.print("} ");
-//  Serial.print(flex2,DEC);Serial.print(": "); Serial.print(*degrees2,DEC);Serial.print("} ");
-//  Serial.print(flex3,DEC);Serial.print(": "); Serial.print(*degrees3,DEC);Serial.println("} ");
 }
 
 /*
@@ -79,8 +72,7 @@ void serialEvent() {
         }else{
            sscanf(charBuf,"max:[%d, %d, %d, %d, %d, %d]\n",&sd.ax_max, &sd.ay_max,&sd.az_max, &sd.flexDataMax[0], &sd.flexDataMax[1], &sd.flexDataMax[2]);
            state.isCalibration = false;
-           Serial.print("Ready:");
-           Serial.println(id);
+           Serial.println("Ready");
            Serial.flush();
 // Serial.print("**************max:");
 //          Serial.print(ax_max);
@@ -129,7 +121,7 @@ void loop() {
   
   readFlexData(&sd.flexData[0], &sd.flexData[1], &sd.flexData[2]); 
   
-  sprintf(str, "%d\t%d\t%d\t%d\t%d\t%d", sd.ax, sd.ay, sd.az, sd.flexData[0], sd.flexData[1], sd.flexData[2]);
+  sprintf(str, "data:%d\t%d\t%d\t%d\t%d\t%d", sd.ax, sd.ay, sd.az, sd.flexData[0], sd.flexData[1], sd.flexData[2]);
   // print out the result
   Serial.println(str);
   Serial.flush();

@@ -31,6 +31,9 @@ def startCallibration(request):
         userData = UserData( userId = request.user.id)
     userData.startCallibrationTime = str(int(time.time()))
     userData.stopCallibrationTime = -1
+    userData.maxValuesList = None
+    userData.minValuesList = None
+    userData.isDirt = 1;
     userData.save()
     return getHttpSuccessResponse()
 
