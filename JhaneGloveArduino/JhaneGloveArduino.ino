@@ -5,6 +5,8 @@
 #include "I2Cdev.h"
 #include "MPU6050.h"
 
+#include "JhaneDataStructure.h"
+
 #define LED_PIN 13
 #define FLEX_PIN_1 0
 #define FLEX_PIN_2 1
@@ -12,8 +14,10 @@
 
 MPU6050 accelgyro;
 
-int16_t ax, ay, az;
-int16_t gx, gy, gz;
+SensorsData sd;
+SystemState state;
+int id = 1;
+
 char str[512];
 
 bool blinkState = false;
@@ -28,12 +32,19 @@ void readFlexData(int* degrees1, int* degrees2, int* degrees3){
   flex2 = analogRead(FLEX_PIN_2);
   flex3 = analogRead(FLEX_PIN_3);
 
-  // convert the voltage reading to inches
-  // the first two numbers are the sensor values for straight (510) and bent (610)
-  // the second two numbers are the degree readings we'll map that to (0 to 90 degrees)
-  *degrees1 = map(flex1, 510, 610, 0, 90);
-  *degrees2 = map(flex2, 510, 610, 0, 90);
-  *degrees3 = map(flex3, 510, 610, 0, 90);
+  if(state.isCalibration){
+      *degrees1 = flex1;
+      *degrees2 = flex2;
+      *degrees3 = flex3;
+  }else{
+      // convert the voltage reading to inches
+      // the first two numbers are the sensor values for straight (510) and bent (610)
+      // the second two numbers are the degree readings we'll map that to (0 to 90 degrees)
+//      *degrees1 = map(flex1, 510, 610, 0, 90);
+      *degrees1 = map(flex1, sd.flexDataMin[0], sd.flexDataMax[0], 0, FLEX_MAX_RANGE);
+      *degrees2 = map(flex2, sd.flexDataMin[1], sd.flexDataMax[1], 0, FLEX_MAX_RANGE);
+      *degrees3 = map(flex3, sd.flexDataMin[2], sd.flexDataMax[2], 0, FLEX_MAX_RANGE);
+  }
 
   // print out the result
 //  Serial.print("flex: {"); Serial.print(flex1,DEC);Serial.print(": "); Serial.print(*degrees1,DEC);Serial.print("} ");
@@ -58,19 +69,29 @@ void serialEvent() {
   }  
   
   if(serialDataIn.length() > 0){
-    serialDataIn.replace("\n", "");
-    int commaIndex = serialDataIn.indexOf(',');
-    //  Search for the next comma just after the first
-    int secondCommaIndex = serialDataIn.indexOf(',', commaIndex+1);
-    String firstValue = serialDataIn.substring(0, commaIndex);  
-    String secondValue = serialDataIn.substring(commaIndex+1, secondCommaIndex);
-    String thirdValue = serialDataIn.substring(secondCommaIndex+1);
     
-    Serial.print("**************");
-    Serial.print(firstValue);
-    Serial.print(secondValue);
-    Serial.println(thirdValue);
-    Serial.flush();
+    serialDataIn.replace("\n", "");
+    if(serialDataIn.startsWith(StateStrings[calibratedMinValues]) || serialDataIn.startsWith(StateStrings[calibratedMaxValues])){
+        char charBuf[serialDataIn.length()+1];
+        serialDataIn.toCharArray(charBuf, serialDataIn.length()+1);
+        if(serialDataIn.startsWith(StateStrings[calibratedMinValues])){
+           sscanf(charBuf,"min:[%d, %d, %d, %d, %d, %d]\n",&sd.ax_min, &sd.ay_min,&sd.az_min, &sd.flexDataMin[0], &sd.flexDataMin[1], &sd.flexDataMin[2]);
+        }else{
+           sscanf(charBuf,"max:[%d, %d, %d, %d, %d, %d]\n",&sd.ax_max, &sd.ay_max,&sd.az_max, &sd.flexDataMax[0], &sd.flexDataMax[1], &sd.flexDataMax[2]);
+           state.isCalibration = false;
+           Serial.print("Ready:");
+           Serial.println(id);
+           Serial.flush();
+// Serial.print("**************max:");
+//          Serial.print(ax_max);
+//    Serial.print(flexDataMax[1]);
+//    Serial.println(flexDataMax[2]);
+//    Serial.flush();
+        }
+    
+    }else if(serialDataIn == StateStrings[calibrationStarted]){
+      state.isCalibration = true;
+    } 
   }
 }
 
@@ -91,17 +112,24 @@ void setup() {
 
   // configure Arduino LED for
   pinMode(LED_PIN, OUTPUT);
+  
+  initSensorsData(&sd);
+  initSystemState(&state);
 }
 
 
 void loop() {
   // read raw accel/gyro measurements from device
-  accelgyro.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
+  accelgyro.getMotion6(&sd.ax, &sd.ay, &sd.az, &sd.gx, &sd.gy, &sd.gz);
+  if(state.isCalibration == false){
+    sd.ax = map(sd.ax, sd.ax_min, sd.ax_max, 0, ACC_MAX_RANGE);
+    sd.ay = map(sd.ay, sd.ay_min, sd.ay_max, 0, ACC_MAX_RANGE);
+    sd.az = map(sd.az, sd.az_min, sd.az_max, 0, ACC_MAX_RANGE);
+  }
   
-  int degrees1, degrees2, degrees3;
-  readFlexData(&degrees1, &degrees2, &degrees3); 
+  readFlexData(&sd.flexData[0], &sd.flexData[1], &sd.flexData[2]); 
   
-  sprintf(str, "%d\t%d\t%d\t%d\t%d\t%d", ax, ay, az, degrees1, degrees2, degrees3);
+  sprintf(str, "%d\t%d\t%d\t%d\t%d\t%d", sd.ax, sd.ay, sd.az, sd.flexData[0], sd.flexData[1], sd.flexData[2]);
   // print out the result
   Serial.println(str);
   Serial.flush();
