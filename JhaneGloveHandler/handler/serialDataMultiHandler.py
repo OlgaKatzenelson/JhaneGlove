@@ -24,7 +24,9 @@ db = MySQLdb.connect(host="localhost",
 cursor = db.cursor()
 
 selectUserDataSql = """SELECT minValuesList, maxValuesList, isDirt FROM JhaneGlove_userdata WHERE userId = %s"""
-updateUserDataDirtBitSql = """UPDATE JhaneGlove_userdata SET isDirt=%s WHERE userId = %s"""
+updateUserDataDirtBitSql = """UPDATE JhaneGlove_userdata SET isDirt= %s WHERE userId = %s"""
+updateUserDataStartTimestampBitSql = """UPDATE JhaneGlove_userdata SET startCallibrationTime= %s WHERE userId = %s """
+
 
 
 insertSql = """INSERT INTO JhaneGlove_serialrawdata(userId, time, data)
@@ -52,10 +54,15 @@ class RemoteClient(asyncore.dispatcher):
             for row in lines:
                 if row:
                     try:
-                        vals = row.split(";") #TODO check the length of array -> case of partial data
-                        if(len(vals) == 3):
+                        vals = row.split(";")
+                        if(len(vals) == 3):  # received data from arduino
                             cursor.execute(insertSql, (vals[0], vals[1], vals[2]))
                             db.commit()
+                        elif(len(vals) == 2): # received command from arduino
+                            commandVal = vals[1].split("&")
+                            if(commandVal[1] == "startCalTimestamp\r"):
+                                cursor.execute(updateUserDataStartTimestampBitSql, (commandVal[0], userId))
+                                db.commit()
                     except MySQLdb.Error, e:
                         print ("An error has been passed. %s" %e)
                         db.rollback()
@@ -66,7 +73,7 @@ class RemoteClient(asyncore.dispatcher):
         if not self.outbox:
             return
         message = self.outbox.popleft()
-        print (message)
+#        print (message)
         if len(message) > MAX_MESSAGE_LENGTH:
             raise ValueError('Message too long')
         self.send(message)
@@ -102,6 +109,7 @@ class Host(asyncore.dispatcher):
         if(self.stepCounter >2):
             self.stepCounter =0;
             cursor.execute(selectUserDataSql, (userId))
+            db.commit()
             data=cursor.fetchone()    #fetchall()
             if(data == None):
                 return
@@ -117,12 +125,15 @@ class Host(asyncore.dispatcher):
             if(isDirt == 1):
                 message = "calStart\n"
                 cursor.execute(updateUserDataDirtBitSql, (2, userId))  #update flag
+                db.commit()
             elif(isDirt == 2 and minValuesList != None):
                 message = "min:" + minValuesList.replace('"', '') + "\n"
                 cursor.execute(updateUserDataDirtBitSql, (3, userId))  #update flag
+                db.commit()
             elif(isDirt == 3 and minValuesList != None):
                 message ="max:" + maxValuesList.replace('"', '')  + "\n"
                 cursor.execute(updateUserDataDirtBitSql, (0, userId))  #update flag
+                db.commit()
 
             if(message != None):
                 self.broadcast(message)

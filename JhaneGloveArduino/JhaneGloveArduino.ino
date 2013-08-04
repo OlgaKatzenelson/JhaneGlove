@@ -39,9 +39,9 @@ void readFlexData(int* degrees1, int* degrees2, int* degrees3){
       // the first two numbers are the sensor values for straight (510) and bent (610)
       // the second two numbers are the degree readings we'll map that to (0 to 90 degrees)
 //      *degrees1 = map(flex1, 510, 610, 0, 90);
-      *degrees1 = map(flex1, sd.flexDataMin[0], sd.flexDataMax[0], 0, FLEX_MAX_RANGE);
-      *degrees2 = map(flex2, sd.flexDataMin[1], sd.flexDataMax[1], 0, FLEX_MAX_RANGE);
-      *degrees3 = map(flex3, sd.flexDataMin[2], sd.flexDataMax[2], 0, FLEX_MAX_RANGE);
+      *degrees1 = calMap(flex1, sd.flexDataMin[0], sd.flexDataMax[0], 0, FLEX_MAX_RANGE);
+      *degrees2 = calMap(flex2, sd.flexDataMin[1], sd.flexDataMax[1], 0, FLEX_MAX_RANGE);
+      *degrees3 = calMap(flex3, sd.flexDataMin[2], sd.flexDataMax[2], 0, FLEX_MAX_RANGE);
   }
 }
 
@@ -83,6 +83,8 @@ void serialEvent() {
     
     }else if(serialDataIn == StateStrings[calibrationStarted]){
       state.isCalibration = true;
+      Serial.println("command:startCalTimestamp");  //after this command arduino strats to send raw data
+      Serial.flush();
     } 
   }
 }
@@ -114,14 +116,16 @@ void loop() {
   // read raw accel/gyro measurements from device
   accelgyro.getMotion6(&sd.ax, &sd.ay, &sd.az, &sd.gx, &sd.gy, &sd.gz);
   if(state.isCalibration == false){
-    sd.ax = map(sd.ax, sd.ax_min, sd.ax_max, 0, ACC_MAX_RANGE);
-    sd.ay = map(sd.ay, sd.ay_min, sd.ay_max, 0, ACC_MAX_RANGE);
-    sd.az = map(sd.az, sd.az_min, sd.az_max, 0, ACC_MAX_RANGE);
+    sd.ax = calMap(sd.ax, sd.ax_min, sd.ax_max, 0, ACC_MAX_RANGE);
+    sd.ay = calMap(sd.ay, sd.ay_min, sd.ay_max, 0, ACC_MAX_RANGE);
+    sd.az = calMap(sd.az, sd.az_min, sd.az_max, 0, ACC_MAX_RANGE);
   }
   
   readFlexData(&sd.flexData[0], &sd.flexData[1], &sd.flexData[2]); 
   
   sprintf(str, "data:%d\t%d\t%d\t%d\t%d\t%d", sd.ax, sd.ay, sd.az, sd.flexData[0], sd.flexData[1], sd.flexData[2]);
+//    sprintf(str, "data:%d\t%d\t%d\t%d\t%d\t%d", sd.ax, sd.ay, sd.az, sd.gx, sd.gy, sd.gz);
+
   // print out the result
   Serial.println(str);
   Serial.flush();

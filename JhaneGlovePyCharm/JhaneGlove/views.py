@@ -51,7 +51,7 @@ def stopCallibration(request):
     #        load calibration data per user
         rawData = SerialRawData.objects.filter(userId = request.user.id, time__range=(userData.startCallibrationTime, userData.stopCallibrationTime))
         for serialRawData in rawData:
-            data = serialRawData.data.split("\t")
+            data = serialRawData.data.replace("\r", "").split("\t")
             if userData.minValuesList != None:  # has prev. info
                 minValueList = jsonDec.decode(userData.minValuesList) #convert string to array
                 maxValueList = jsonDec.decode(userData.maxValuesList)
@@ -69,7 +69,7 @@ def stopCallibration(request):
     except ObjectDoesNotExist:
         return getHttpResponse(0, "Serial data of the user is empty.   ")
 
-    userData.save()
+    userData.save(force_update=True)
 
     return getHttpSuccessResponse()
 

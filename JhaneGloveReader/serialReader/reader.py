@@ -42,7 +42,7 @@ def readSerial(s):
                 try:
                     data = ser.readline();
                     ser.flush()
-                    print data
+#                    print data
                     global adruinoUpdated
                     if(adruinoUpdated and data.startswith("data:")):
                         ts = str(int(time.time()))
@@ -50,6 +50,10 @@ def readSerial(s):
                         s.send(fullData)
                     elif(data.startswith("Ready")): #calibration data already updated on arduino
                         adruinoUpdated = True
+                    elif(data.startswith("command:")): #received command from arduino
+                        ts = str(int(time.time()))
+                        fullData = str(userId) +';' + ts + "&" + data[len("command:") :]
+                        s.send(fullData)
                     else:
                         s.send("ignore the data") #keep connection
 
@@ -68,7 +72,7 @@ def getRecvData(s):
         err = e.args[0]
         if err == errno.EAGAIN or err == errno.EWOULDBOCK:
             time.sleep(1)
-            print 'No data available'
+#            print 'No data available'
         else:
             # a "real" error occurred
             print e
