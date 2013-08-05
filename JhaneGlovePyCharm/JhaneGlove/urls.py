@@ -14,6 +14,8 @@ urlpatterns = patterns('',
     url(r'^add/$', views.addData , name='addData'),
     url(r'^doRecognize/$', views.ajaxRecognize , name='ajaxRecognize'),
     url(r'^recognition/$', views.recognize , name='recognize'),
+    url(r'^doClearOldTrainingData/$', views.clearOldTrainingData , name='clearOldTrainingData'),
+
 
     
 )

@@ -56,7 +56,7 @@ class RemoteClient(asyncore.dispatcher):
                     try:
                         vals = row.split(";")
                         if(len(vals) == 3):  # received data from arduino
-                            cursor.execute(insertSql, (vals[0], vals[1], vals[2]))
+                            cursor.execute(insertSql, (vals[0], vals[1], vals[2].replace("\r", "")))
                             db.commit()
                         elif(len(vals) == 2): # received command from arduino
                             commandVal = vals[1].split("&")

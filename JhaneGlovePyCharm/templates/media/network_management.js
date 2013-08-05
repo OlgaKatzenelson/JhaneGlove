@@ -139,5 +139,15 @@ function NetworkManagement () {
             $(".start_recognize").click();
         }
     }
+
+    this.clearOldTrainingData = function(event) {
+        var self_obj = event.data.ths;
+        $.ajax({ type:"POST",
+            url:"/glow/doClearOldTrainingData/",
+            complete : self_obj.complete_handler
+        });
+        return false;
+    };
+
 }
 

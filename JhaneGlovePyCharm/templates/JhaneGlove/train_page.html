@@ -13,6 +13,7 @@
 		<button id="go_home" />
 		<button id="exec_train" disabled>Train</button>
 		<button id="do_test" disabled>Test</button>
+        <button id="do_clear">Clear</button>
 	</div>	
 </div>
 
@@ -45,6 +46,8 @@
 		$("#exec_train").bind('click', {ths: controller}, controller.trainTheNetwork);
 		
 		$("#do_test").bind('click', {ths: controller}, controller.testTheNetwork);
+
+        $("#do_clear").bind('click', {ths: controller}, controller.clearOldTrainingData);
 
 		
 	});

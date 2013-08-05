@@ -2,6 +2,7 @@ from django.db import models
 import datetime
 import os
 import pickle
+import time
 import pybrain
 
 from pybrain.datasets import *
@@ -11,6 +12,7 @@ from pybrain.structure import *
 
 from django.utils import timezone
 from django import template
+
 
 register = template.Library()
 
@@ -36,29 +38,13 @@ class SerialRawData(models.Model):
         return str(self.userId) + "( " + str(self.time) + " : " + str(self.data) + " )"
 
 
-class Cell(models.Model):
-    id = models.AutoField(primary_key=True)
-    data = models.CharField(max_length=200)
-    dataClass = models.IntegerField(0)
-    userId = models.IntegerField(0)
-
-    def __unicode__(self):
-        return str(self.data) + " : " + str(self.dataClass)
-
-    def delete(self, *args, **kwargs):
-        pass
-
-    def close(self):
-        self.ser.close()
-
 class NN(models.Model):
     TEST_MESSAGE = '{0} will be {1}'
     INPUT_SIZE = 6
-    cells = []
-    testCells = []
+    userId = models.IntegerField(0)
     ds = models.BinaryField()
     net =  models.BinaryField();
-    totalError = models.FloatField(100);
+    totalError = models.FloatField(100, null=True);
     userName = models.CharField(max_length=100)
 
     def __init__(self, *args, **kwargs):
@@ -78,24 +64,21 @@ class NN(models.Model):
         self.net.sortModules()
         self.trainer = BackpropTrainer(self.net, momentum=0.01)  # , learningrate=0.01, verbose=True, learningrate=0.1, momentum=0.9
 
-    def addCell(self, cell):
-        self.cells.append(cell)
-        print self.cells
-
-    def addTestCell(self, cell):
-        self.testCells.append(cell)
-        print 'Cell for test added'
-
-    def addData(self, data):
-        if(len(self.cells)>0):
-            for cell in self.cells:
-                data = cell.data.split()
+    def loadDataForTrain(self):
+        cells = Cell.objects.filter(nn_id = self.id, forTest = False)
+        if(len(cells)>0):
+            for cell in cells:
+                data = self.convertToIntArray(cell.data.split())
                 print 'try to add {0} : {1}'.format(data, cell.dataClass)
                 self.ds.addSample(data , (cell.dataClass))
-        elif(False == True):
-            self.getOldDataSet();
         else:
             self.getNewDataSet()
+
+    def convertToIntArray(self, origArray):
+        newArray = []
+        for val in origArray:
+            newArray.append(int(val))
+        return newArray
 
     def store(self):
         f = open('_learned', 'w')
@@ -108,6 +91,7 @@ class NN(models.Model):
         f.close()
 
     def train(self):
+        self.loadDataForTrain()
         trained = False
         acceptableError = 0.001
         counter = 10
@@ -137,10 +121,12 @@ class NN(models.Model):
         totalCounter = 8;
         totalSuccess = 0;
 
-        if(len(self.testCells)>0):
-            totalCounter = len(self.testCells)
-            for cell in self.testCells:
-                data = cell.data.split()
+        cells = Cell.objects.filter(nn_id = self.id, forTest = True)
+        if(len(cells)>0):
+            totalCounter = len(cells)
+            for cell in cells:
+                data = self.convertToIntArray(cell.data.split())
+                print 'test {0} : {1}'.format(data, cell.dataClass)
                 totalSuccess+=self.activateAndTest(data , cell.dataClass)
         else:
             totalSuccess+=self.activateAndTest([2580, 480, -16840, -32, -16, -3], 0)
@@ -167,6 +153,13 @@ class NN(models.Model):
 
     def activate(self, data):
         return self.net.activate(data)
+
+    def activateOnSet(self, dataSet):
+        result = ''
+        for data in dataSet:
+            result = self.net.activate(data)
+
+        return result
 
     def activateAndTest(self, data, dataClass):
         activationResult = self.net.activate(data);
@@ -235,37 +228,43 @@ class NN(models.Model):
         self.ds.addSample((-8536, 136, -14064, -20, -5, -21) , (3))
         self.ds.addSample((-8328, 364, -14460, -31, -52, -5) , (3))
 
+
+class Cell(models.Model):
+    nn = models.ForeignKey(NN)
+    data = models.CharField(max_length=200)
+    dataClass = models.IntegerField(0)
+    userId = models.IntegerField(0)
+    forTest = models.BooleanField(default=False)
+
+    def __unicode__(self):
+        return str(self.data) + " : " + str(self.dataClass)
+
 class DataReader(models.Model):
-    PATH_TO_FILE = os.path.dirname(os.path.dirname(__file__)) + '/serialReader/data.txt'
-#    data = models.CharField(max_length=200)
+    TIME_WINDOW = 5
 
-#    def __unicode__(self):
-#        return self.data
+    def loadData(self, userId):
+        currentTime = int(time.time())
 
-        # The function tried to read data twice. Because of instability of the Arduino
-    def getDataFromSerial(self):
-        data = ''
-        data = self.readDataFromSerial()
-        if data == '':
-            data = self.readDataFromSerial()
+        rawData = SerialRawData.objects.filter(userId = userId, time__range=(str(currentTime - self.TIME_WINDOW), currentTime))
+        #clear old data
+        self.removeData(userId, currentTime)
 
-        return data
+        return rawData
 
-    def readDataFromSerial(self):
-        data = ''
+    def loadSingleData(self, _userId, timestamp):
+        rawData = SerialRawData.objects.filter(userId = _userId, time__range=(timestamp, str(timestamp + self.TIME_WINDOW)))
+        if(len(rawData) > 0):
+            return rawData[0].data
 
-        f = file(self.PATH_TO_FILE, "r")
-        try:
-            data = f.readlines()[-1] #last line
-            print data
-            if self.contains(data , "Arduino") or data.split().__len__() != NN.INPUT_SIZE:
-                data = ''
-        except:
-            print "Empty file"
-            # data = "2568 540 -17004 -34 -17 -2"
-        f.close()
+        return ""
 
-        return data
+
+    def loadDataInRange(self, _userId, startTime, stopTime):
+        return SerialRawData.objects.filter(userId = _userId, time__range=(startTime, stopTime))
+
+
+    def removeData(self, userId, timestamp):
+        SerialRawData.objects.filter(userId = userId, time__lte=timestamp).delete()
 
 
     @register.filter()

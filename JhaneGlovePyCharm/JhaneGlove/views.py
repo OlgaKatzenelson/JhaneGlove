@@ -12,7 +12,6 @@ import json
 import time
 
 jsonDec = json.decoder.JSONDecoder()
-nn = NN( id = 1)
 dataReader = DataReader()
 
 #@login_required
@@ -49,7 +48,7 @@ def stopCallibration(request):
 #    userData.stopCallibrationTime = 1374776869
     try:
     #        load calibration data per user
-        rawData = SerialRawData.objects.filter(userId = request.user.id, time__range=(userData.startCallibrationTime, userData.stopCallibrationTime))
+        rawData = DataReader.loadDataInRange(request.user.id, userData.startCallibrationTime, userData.stopCallibrationTime)
         for serialRawData in rawData:
             data = serialRawData.data.replace("\r", "").split("\t")
             if userData.minValuesList != None:  # has prev. info
@@ -66,6 +65,8 @@ def stopCallibration(request):
             else: # first record
                 userData.minValuesList = json.dumps(data)
                 userData.maxValuesList = json.dumps(data)
+        #clear old data
+        DataReader.removeData(request.user.id, userData.stopCallibrationTime)
     except ObjectDoesNotExist:
         return getHttpResponse(0, "Serial data of the user is empty.   ")
 
@@ -85,59 +86,77 @@ def goToTrainPage(request):
 
 
 def addData(request):
+    currentTime =  int(time.time())
+    time.sleep(1)
     dataClass = request.POST['class_id']
     #   request.session
     forTest  = request.POST['for_test']
-    data = dataReader.getDataFromSerial()
+    data = dataReader.loadSingleData(request.user.id, currentTime)
     print 'test :: {0}'.format(data)
     if(data != ''):
-        cell = Cell(userId = 0)
+        cell = Cell(userId = request.user.id)
         cell.data = data
         cell.dataClass = dataClass
-        #     try:
-        #         nn = NN.objects.get(id = 1)
-        #     except ObjectDoesNotExist:
-        #         nn = NN(id = 1)
+        nn = findNNbyUserId(request)
+        cell.nn = nn
+
         print '******* forTest = {0}   ***** dataClass = {1}'.format(forTest, dataClass);
         if (forTest == '1'):
-            nn.addTestCell(cell)
-        else:
-            nn.addCell(cell)
+            cell.forTest = True
+#            nn.addTestCell(cell)
+#        else:
+#            cell.forTest = Fa
+#            nn.addCell(cell)
         cell.save()
+#        nn.save()
     else:
         print 'empty cell'
         return getHttpResponse(0, "Arduino doesn't connected.   ")
 
     print "ajax_start id={0}".format(dataClass)
-    print nn.cells.__len__()
+    print len(Cell.objects.filter(nn__userId=request.user.id))
     return getHttpSuccessResponse()
+
+def findNNbyUserId(request):
+    try:
+        nn = NN.objects.get(userId=request.user.id)
+    except ObjectDoesNotExist:
+        nn = NN(userId=request.user.id)
+        nn.save()
+    return nn
 
 
 def testData(request):
-#     nn = NN.objects.get(id = 1);
 #     print nn.totalError
+    nn = findNNbyUserId(request)
     rateOfSuccess = nn.test();
     userMessage = '{0}% of success.   '.format(rateOfSuccess);
     return getHttpResponse(1, userMessage)
 
 def trainTheNetwork(request):
-#     nn = NN( id = 1);
-    nn.addData('');
+    nn = findNNbyUserId(request)
     userMessage = nn.train();
     nn.save()
     return getHttpResponse(1, userMessage)
 
 def ajaxRecognize(request):
-    time.sleep(1)
-    data = dataReader.getDataFromSerial()
+#    time.sleep(1)
+    nn = findNNbyUserId(request)
+
+    data = dataReader.loadData(request.user.id)
     result = 'Unknown'
     if data != '':
-        result = nn.activate(data.split())[0]
+        result = nn.activateOnSet(data.split())[0]
     print "Here"
 #    result = data
     print "Recognize result: {0}      data {1}".format(result, data)
 #    return getHttpResponse(1, result[0])
     return getHttpResponse(1, result)
+
+
+def clearOldTrainingData(request):
+    Cell.objects.filter(nn__userId=request.user.id).delete()
+    return getHttpSuccessResponse()
 
 def getHttpResponse(status, message):
     to_json = {
