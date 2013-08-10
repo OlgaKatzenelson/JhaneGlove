@@ -135,7 +135,7 @@ def testData(request):
 
 def trainTheNetwork(request):
     nn = findNNbyUserId(request)
-    userMessage = nn.train();
+    userMessage = nn.train1();
     nn.save()
     return getHttpResponse(1, userMessage)
 
