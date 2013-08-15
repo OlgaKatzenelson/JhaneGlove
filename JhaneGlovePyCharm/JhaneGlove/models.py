@@ -57,8 +57,8 @@ class NN(models.Model):
         #         self.ds = ClassificationDataSet(6, 1, nb_classes=4)
         #         self.net = FeedForwardNetwork()
         self.net.addInputModule(LinearLayer(self.INPUT_SIZE, name='in'))
-        self.net.addModule(SigmoidLayer(26, name='hidden_0')) #40 24
-#        self.net.addModule(SigmoidLayer(6, name='hidden_1')) #SigmoidLayer
+        self.net.addModule(SigmoidLayer(4, name='hidden_0')) #40 24
+#        self.net.addModule(SigmoidLayer(3, name='hidden_1')) #SigmoidLayer
         self.net.addOutputModule(LinearLayer(1, name='out'))
         self.net.addConnection(FullConnection(self.net['in'], self.net['hidden_0']))
 #        self.net.addConnection(FullConnection(self.net['hidden_0'], self.net['hidden_1']))
@@ -127,9 +127,9 @@ class NN(models.Model):
         # train until acceptable error reached
         while trained == False and counter > 0:
 #            self.trainer.trainUntilConvergence()
-            self.trainer.trainOnDataset(self.ds, 100)
-#            self.trainer.trainEpochs(200)
-#            self.trainer.testOnClassData(dataset = self.ds)
+#            self.trainer.trainOnDataset(self.ds, 100)
+            self.trainer.trainEpochs(1000)
+            self.trainer.testOnClassData(dataset = self.ds)
 
             error = self.trainer.train()
             self.pickled_net = cPickle.dumps(self.net)
@@ -180,6 +180,7 @@ class NN(models.Model):
         return self.net.activate(data)
 
     def activateOnSet(self, dataSet):
+        self.net= cPickle.loads(str(self.pickled_net))
         result = ''
         for data in dataSet:
             result = self.net.activate(data)
@@ -218,10 +219,13 @@ class DataReader(models.Model):
         currentTime = int(time.time())
 
         rawData = SerialRawData.objects.filter(userId = userId, time__range=(str(currentTime - self.TIME_WINDOW), currentTime))
+        data = []
+        for raw in rawData:
+            data.append(convertToIntArray(raw.data.split()))
         #clear old data
         self.removeData(userId, currentTime)
 
-        return rawData
+        return data
 
     def loadSingleData(self, _userId, timestamp):
         rawData = SerialRawData.objects.filter(userId = _userId, time__range=(timestamp, str(timestamp + self.TIME_WINDOW)))
@@ -242,3 +246,10 @@ class DataReader(models.Model):
     @register.filter()
     def contains(self, value, arg):
         return arg in value
+
+
+def convertToIntArray(origArray):
+    newArray = []
+    for val in origArray:
+        newArray.append(int(val))
+    return newArray

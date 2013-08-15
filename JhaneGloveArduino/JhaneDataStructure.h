@@ -3,8 +3,10 @@
 
 #include "MPU6050.h"
 #define FLEX_COUNT 3
+#define FINGERS_COUNT 4
 #define FLEX_MAX_RANGE 90
-#define ACC_MAX_RANGE 255
+#define COM_MAX_RANGE 90
+#define ACC_MAX_RANGE 90 //255
 
 struct sensorsData 
   {
@@ -14,6 +16,9 @@ struct sensorsData
       int16_t flexData[FLEX_COUNT];
       int16_t flexDataMin[FLEX_COUNT];
       int16_t flexDataMax[FLEX_COUNT];
+      int firstPhalange[FINGERS_COUNT];
+      int secondPhalange[FINGERS_COUNT];
+      int palm[FINGERS_COUNT];
   };
   
   struct systemState 

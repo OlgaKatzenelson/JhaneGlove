@@ -8,6 +8,7 @@ void initSensorsData(SensorsData* sd){
   (*sd).ay_max= 9000;
   (*sd).az_max= 15000;
   
+  
    (*sd).flexDataMin[0] = 517;
    (*sd).flexDataMax[0] = 646;
    (*sd).flexDataMin[1] = 530;

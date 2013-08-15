@@ -130,7 +130,10 @@ function NetworkManagement () {
 //        var data = $.parseJSON(res.responseText);
         if (status == "success") {
 //    	    	alert(res.responseText["message"]);
-            $("#recognized").text( res.responseText);
+            if(res.responseText.indexOf("Empty") == -1){
+                $("#recognized").text( res.responseText);
+            }
+
             $(".start_recognize").click();
         }
         else

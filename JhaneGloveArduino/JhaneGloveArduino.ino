@@ -109,21 +109,46 @@ void setup() {
   
   initSensorsData(&sd);
   initSystemState(&state);
+  
+  comparatorSetup();
 }
 
 
 void loop() {
+//  Serial.print("Value at channel ");
+//    Serial.print(0);
+//    Serial.print("is : ");
+//    Serial.println(readMux(0));
+//    delay(1000); 
+//    Serial.print(1);
+//    Serial.print("is : ");
+//    Serial.println(readMux(1));
+
   // read raw accel/gyro measurements from device
   accelgyro.getMotion6(&sd.ax, &sd.ay, &sd.az, &sd.gx, &sd.gy, &sd.gz);
   if(state.isCalibration == false){
     sd.ax = calMap(sd.ax, sd.ax_min, sd.ax_max, 0, ACC_MAX_RANGE);
     sd.ay = calMap(sd.ay, sd.ay_min, sd.ay_max, 0, ACC_MAX_RANGE);
     sd.az = calMap(sd.az, sd.az_min, sd.az_max, 0, ACC_MAX_RANGE);
+    
   }
   
   readFlexData(&sd.flexData[0], &sd.flexData[1], &sd.flexData[2]); 
   
-  sprintf(str, "data:%d\t%d\t%d\t%d\t%d\t%d", sd.ax, sd.ay, sd.az, sd.flexData[0], sd.flexData[1], sd.flexData[2]);
+//  int compVal = readMux(0);
+//  compVal = compVal > 3 ? 1 : 0;
+  
+  readMux(sd);
+// Serial.print(sd.firstPhalange[0]);
+// Serial.print(sd.firstPhalange[1]);
+// Serial.print(sd.secondPhalange[0]);
+// Serial.print(sd.secondPhalange[1]);
+// Serial.print(sd.palm[0]);
+// Serial.println(sd.palm[1]);
+//  
+   sprintf(str, "data:%d\t%d\t%d\t%d\t%d\t%d", sd.flexData[0], sd.flexData[1], sd.flexData[2], sd.firstPhalange[0], sd.secondPhalange[0], sd.palm[0]);
+
+//  sprintf(str, "data:%d\t%d\t%d\t%d\t%d\t%d", sd.ax, sd.ay, sd.az, sd.flexData[0], sd.flexData[1], sd.flexData[2]);
 //    sprintf(str, "data:%d\t%d\t%d\t%d\t%d\t%d", sd.ax, sd.ay, sd.az, sd.gx, sd.gy, sd.gz);
 
   // print out the result

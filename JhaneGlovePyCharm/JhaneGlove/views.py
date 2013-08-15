@@ -145,12 +145,13 @@ def ajaxRecognize(request):
 
     data = dataReader.loadData(request.user.id)
     result = 'Unknown'
-    if data != '':
-        result = nn.activateOnSet(data.split())[0]
-    print "Here"
-#    result = data
-    print "Recognize result: {0}      data {1}".format(result, data)
-#    return getHttpResponse(1, result[0])
+    if data != '' and len(data) >0:
+        tempResult = nn.activateOnSet(data)
+        if tempResult != '':
+            result = tempResult[0]
+        print "Recognize result: {0}      data {1}".format(result, data)
+    else:
+        result = 'Empty'
     return getHttpResponse(1, result)
 
 
