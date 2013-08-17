@@ -18,25 +18,7 @@ void comparatorSetup(){
   digitalWrite(s1, LOW);
   digitalWrite(s2, LOW);
   digitalWrite(s3, LOW);
-
-//  Serial.begin(9600);
 }
-
-
-//void loop(){
-//
-//  //Loop through and read all 16 values
-//  //Reports back Value at channel 6 is: 346
-////  for(int i = 0; i < 16; i ++){
-//  int i = 0;
-//    Serial.print("Value at channel ");
-//    Serial.print(i);
-//    Serial.print("is : ");
-//    Serial.println(readMux(i));
-//    delay(1000);
-////  }
-//
-//}
 
 
 int readMux(int channel){
@@ -75,30 +57,26 @@ int readMux(int channel){
 
 void readMux(SensorsData& sd){
   int i =0;
-  for(; i < FINGERS_COUNT; i ++){
-//    Serial.print("Value at channel ");
-//    Serial.print(i);
-//    Serial.print("is : ");
-//    Serial.println(readMux(i));
-      int val = readMux(i);
-      sd.firstPhalange[i] = 0;
-      sd.palm[i] = 0;
-      if(val < 3){ //first Phalange
-        sd.firstPhalange[i] = COM_MAX_RANGE;
-        sd.palm[i] = 0;
-      }else if(val < 10){ //palm
-        sd.firstPhalange[i] = 0;
-        sd.palm[i] = COM_MAX_RANGE;
-      }
-      delay(100);
-  }
-  
-   for(int j=0; j < FINGERS_COUNT; i ++, j++){
-      int val = readMux(i);
-      sd.secondPhalange[j] = 0;
-      if(val < 3){ //second Phalange
-        sd.secondPhalange[j] = COM_MAX_RANGE;
-      }
+  int index = FINGERS_COUNT - 1;
+  for(; i < FINGERS_COUNT*2; i ++){
+    int val = readMux(i);
+
+    if(i< FINGERS_COUNT){  //second Phalange
+        sd.secondPhalange[index] = 0;
+        if(val < 3){
+           sd.secondPhalange[index] = COM_MAX_RANGE;
+        }
+    }else{ //first Phalange
+        sd.firstPhalange[index] = 0;
+        sd.palm[index] = 0;
+        if(val < 3){ //first Phalange
+            sd.firstPhalange[index] = COM_MAX_RANGE;
+        }else if(val < 990 && val > 900){ //palm
+            sd.palm[index] = COM_MAX_RANGE;
+        }
+    }
+
+      index = index <= 0 ? FINGERS_COUNT -1 :  index-1;
       delay(100);
   }
   

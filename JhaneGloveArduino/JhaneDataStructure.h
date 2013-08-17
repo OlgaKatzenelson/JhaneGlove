@@ -2,7 +2,7 @@
 #define JHANE_DATA_STRUCTURE
 
 #include "MPU6050.h"
-#define FLEX_COUNT 3
+#define FLEX_COUNT 5
 #define FINGERS_COUNT 4
 #define FLEX_MAX_RANGE 90
 #define COM_MAX_RANGE 90

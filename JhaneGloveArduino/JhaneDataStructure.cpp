@@ -13,8 +13,10 @@ void initSensorsData(SensorsData* sd){
    (*sd).flexDataMax[0] = 646;
    (*sd).flexDataMin[1] = 530;
    (*sd).flexDataMax[1] = 615;
-   (*sd).flexDataMin[2] = 500;
-   (*sd).flexDataMax[2] = 620;
+   (*sd).flexDataMin[3] = 500;
+   (*sd).flexDataMax[3] = 620;
+   (*sd).flexDataMin[4] = 520;
+   (*sd).flexDataMax[4] = 590;
       
 //    for(int i=0; i< FLEX_COUNT; i++){
 //      (*sd).flexDataMin[i] = 510;

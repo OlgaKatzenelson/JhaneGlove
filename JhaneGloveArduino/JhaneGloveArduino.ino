@@ -10,7 +10,9 @@
 #define LED_PIN 13
 #define FLEX_PIN_1 0
 #define FLEX_PIN_2 1
-#define FLEX_PIN_3 2
+#define FLEX_PIN_3 9
+#define FLEX_PIN_4 2
+#define FLEX_PIN_5 8
 
 MPU6050 accelgyro;
 
@@ -23,17 +25,20 @@ bool blinkState = false;
 void setup();
 void loop();
 
-void readFlexData(int* degrees1, int* degrees2, int* degrees3){
-  int flex1, flex2, flex3;
+void readFlexData(int* degrees1, int* degrees2, int* degrees3, int* degrees4, int* degrees5){
+  //flex3 and flex5 has special processing
+  int flex1, flex2, flex3, flex4, flex5;
   // read the voltage from the voltage divider (sensor plus resistor)
   flex1 = analogRead(FLEX_PIN_1);
   flex2 = analogRead(FLEX_PIN_2);
-  flex3 = analogRead(FLEX_PIN_3);
-
+  flex4 = analogRead(FLEX_PIN_4);
+  flex5 = readMux(FLEX_PIN_5);
+  
   if(state.isCalibration){
       *degrees1 = flex1;
       *degrees2 = flex2;
-      *degrees3 = flex3;
+      *degrees4 = flex4;
+      *degrees5 = flex5;
   }else{
       // convert the voltage reading to inches
       // the first two numbers are the sensor values for straight (510) and bent (610)
@@ -41,8 +46,35 @@ void readFlexData(int* degrees1, int* degrees2, int* degrees3){
 //      *degrees1 = map(flex1, 510, 610, 0, 90);
       *degrees1 = calMap(flex1, sd.flexDataMin[0], sd.flexDataMax[0], 0, FLEX_MAX_RANGE);
       *degrees2 = calMap(flex2, sd.flexDataMin[1], sd.flexDataMax[1], 0, FLEX_MAX_RANGE);
-      *degrees3 = calMap(flex3, sd.flexDataMin[2], sd.flexDataMax[2], 0, FLEX_MAX_RANGE);
+      *degrees4 = calMap(flex4, sd.flexDataMin[3], sd.flexDataMax[3], 0, FLEX_MAX_RANGE);
+     
+     if(flex5 > sd.flexDataMax[4]+5 && flex5 < sd.flexDataMax[4]+10){
+       *degrees5 = FLEX_MAX_RANGE - 10;
+     }else if(flex5 >= sd.flexDataMax[4]+10){
+       *degrees5 = FLEX_MAX_RANGE;
+     }else{
+        *degrees5 = calMap(flex5, sd.flexDataMin[4], sd.flexDataMax[4], 0, FLEX_MAX_RANGE-30);
+     }
   }
+  
+  
+  flex3 = readMux(FLEX_PIN_3);
+  if(flex3 < 510){
+    flex3 = 0;
+  }else if(flex3 >=510 && flex3 < 515) {
+    flex3 = 30;
+  }else if(flex3 >=515 && flex3 < 520) {
+    flex3 = 60;
+  }else{
+    flex3 = 90;
+  }
+  
+  *degrees3 = flex3;
+   
+   
+  
+  
+  
 }
 
 /*
@@ -133,20 +165,15 @@ void loop() {
     
   }
   
-  readFlexData(&sd.flexData[0], &sd.flexData[1], &sd.flexData[2]); 
-  
-//  int compVal = readMux(0);
-//  compVal = compVal > 3 ? 1 : 0;
+  readFlexData(&sd.flexData[0], &sd.flexData[1], &sd.flexData[2], &sd.flexData[3], &sd.flexData[4]); 
+ 
   
   readMux(sd);
-// Serial.print(sd.firstPhalange[0]);
-// Serial.print(sd.firstPhalange[1]);
-// Serial.print(sd.secondPhalange[0]);
-// Serial.print(sd.secondPhalange[1]);
-// Serial.print(sd.palm[0]);
-// Serial.println(sd.palm[1]);
-//  
-   sprintf(str, "data:%d\t%d\t%d\t%d\t%d\t%d", sd.flexData[0], sd.flexData[1], sd.flexData[2], sd.firstPhalange[0], sd.secondPhalange[0], sd.palm[0]);
+  
+  sprintf(str, "data:%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d", sd.ax, sd.ay, sd.az,sd.flexData[0], sd.flexData[1], sd.flexData[2],sd.flexData[3], sd.flexData[4], 
+        sd.firstPhalange[0], sd.secondPhalange[0], sd.palm[0], sd.firstPhalange[1], sd.secondPhalange[1], sd.palm[1], sd.firstPhalange[2], sd.secondPhalange[2], sd.palm[2], 
+        sd.firstPhalange[3], sd.secondPhalange[3], sd.palm[3]);
+//   sprintf(str, "data:%d\t%d\t%d\t%d\t%d\t%d", sd.flexData[0], sd.flexData[1], sd.flexData[2], sd.firstPhalange[0], sd.secondPhalange[0], sd.palm[0]);
 
 //  sprintf(str, "data:%d\t%d\t%d\t%d\t%d\t%d", sd.ax, sd.ay, sd.az, sd.flexData[0], sd.flexData[1], sd.flexData[2]);
 //    sprintf(str, "data:%d\t%d\t%d\t%d\t%d\t%d", sd.ax, sd.ay, sd.az, sd.gx, sd.gy, sd.gz);
