@@ -3,9 +3,14 @@
 
 <div id= 'menu_content'>{% csrf_token %}
 	<div id= 'step'>Step : Adding information</div>
-	
-	{% load staticfiles %}
-	<img id = "training_icon" src="{{ STATIC_URL }}images/set/0.jpg" />
+    <div id = 'top_menu'>
+        <div class='clear' />
+        <button id="do_clear">Reset</button>
+        <button id="skip">Skip</button>
+    </div>
+
+    {% load staticfiles %}
+	<img id = "training_icon" src="{{ STATIC_URL }}images/set/a.jpg" />
 
 	<button type="submit" id="ready">Ready</button>
 	<div id = 'bottom_menu'>
@@ -13,8 +18,7 @@
 		<button id="go_home" />
 		<button id="exec_train" >Train</button>
 		<button id="do_test" disabled>Test</button>
-        <button id="do_clear">Clear</button>
-	</div>	
+	</div>
 </div>
 
 <script type="text/javascript">
@@ -48,6 +52,9 @@
 		$("#do_test").bind('click', {ths: controller}, controller.testTheNetwork);
 
         $("#do_clear").bind('click', {ths: controller}, controller.clearOldTrainingData);
+
+        $("#skip").bind('click', {ths: controller}, controller.skip);
+
 
 		
 	});

@@ -4,16 +4,12 @@ import os
 import pickle
 import cPickle
 import time
-import pybrain
 
 from pybrain.datasets import *
-from pybrain.tools.shortcuts import buildNetwork
 from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.structure import *
 
-from django.utils import timezone
 from django import template
-from django.core import serializers
 
 
 register = template.Library()
@@ -28,6 +24,22 @@ class UserData(models.Model):
 
     def __unicode__(self):
         return str(self.userId) + "( " + str(self.startCallibrationTime) + " : " + str(self.stopCallibrationTime) + " )"
+
+class ClassData(models.Model):
+        classId = models.AutoField(primary_key=True)
+        symbol = models.CharField(max_length=50)
+
+        def __unicode__(self):
+            return str(self.classId) + ": " + self.symbol
+
+class UsersClassData(models.Model):
+    id = models.AutoField(primary_key=True)
+    userId = models.IntegerField(0)
+    classId = models.IntegerField(0)
+
+    def __unicode__(self):
+        return str(self.userData) + ": " + self.classId
+
 
 class SerialRawData(models.Model):
     id = models.AutoField(primary_key=True)

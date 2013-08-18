@@ -4,7 +4,7 @@ from django.http import  HttpResponse
 #from django.conf import settings
 from django.contrib.sessions.models import Session
 
-from JhaneGlove.models import Cell, NN, DataReader, UserData, SerialRawData
+from JhaneGlove.models import Cell, NN, DataReader, UserData, ClassData, UsersClassData
 from JhaneGlovePyCharm import *
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
@@ -88,7 +88,12 @@ def goToTrainPage(request):
 def addData(request):
     currentTime =  int(time.time())
     time.sleep(1)
-    dataClass = request.POST['class_id']
+    dataClassValue = request.POST['class_data']
+
+    # update ClassData and UsersClassData
+    dataClassId = ClassData.objects.get_or_create(symbol = dataClassValue)[0].classId
+    UsersClassData.objects.get_or_create(userId = request.user.id, classId = dataClassId)
+
     #   request.session
     forTest  = request.POST['for_test']
     data = dataReader.loadSingleData(request.user.id, currentTime)
@@ -96,11 +101,11 @@ def addData(request):
     if(data != ''):
         cell = Cell(userId = request.user.id)
         cell.data = data
-        cell.dataClass = dataClass
+        cell.dataClass = dataClassId
         nn = findNNbyUserId(request)
         cell.nn = nn
 
-        print '******* forTest = {0}   ***** dataClass = {1}'.format(forTest, dataClass);
+        print '******* forTest = {0}   ***** dataClass = {1}'.format(forTest, dataClassId);
         if (forTest == '1'):
             cell.forTest = True
 #            nn.addTestCell(cell)
@@ -113,7 +118,7 @@ def addData(request):
         print 'empty cell'
         return getHttpResponse(0, "Arduino doesn't connected.   ")
 
-    print "ajax_start id={0}".format(dataClass)
+    print "ajax_start id={0}".format(dataClassId)
     print len(Cell.objects.filter(nn__userId=request.user.id))
     return getHttpSuccessResponse()
 

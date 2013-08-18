@@ -51,7 +51,7 @@ $(function() {
 });
 
 $(function() {
-    $("#start_calibration, #stop_calibration").button({
+    $("#start_calibration, #stop_calibration, #do_clear, #skip, #start_recognize").button({
     })
 });
 

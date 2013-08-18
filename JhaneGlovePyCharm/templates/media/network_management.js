@@ -4,6 +4,9 @@ function NetworkManagement () {
 	
 	this.curent_index = 0;
 	this.snapshot_num = 4;
+
+    this.alphabet= ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r",
+        "s", "t", "u", "v", "w", "x", "y"];
     
     this.trainTheNetwork = function(event) {
     	var self_obj = event.data.ths;
@@ -25,19 +28,20 @@ function NetworkManagement () {
 	};
 	
 	this.take_snapshot = function(event) {
+        $("#ready").button("disable");
 		var self_obj = event.data.ths;
 		self_obj.curent_index ++;
 		// --------- send request------
 		var data_for_test = (self_obj.curent_index > 2) ? 1 : 0;
 		var data = {
-			class_id : self_obj.image_index,
+			class_data : self_obj.alphabet[self_obj.image_index],
 			for_test : data_for_test
 		};
 		var args = {
 			type : "POST",
 			url : "/glow/add/",
 			data : data, 
-			complete : self_obj.complete_handler
+			complete : self_obj.add_data_complete_handler
 		};
 		$.ajax(args);
 		
@@ -67,17 +71,18 @@ function NetworkManagement () {
 			$(".info_message").message("show");
 			$("#step").text( "Step : Training");
 		}else{
-			var image_src = "/static/images/set/"+ self_obj.image_index + ".jpg";
-			$('#training_icon').attr('src', image_src).load(function(){
-			    this.width;   // Note: $(this).width() will not work for in memory images
-
-			});
+            setNextIcon(self_obj);
 		}
 		
 		return false;
 	};
-	
-	
+
+    this.add_data_complete_handler = function(res, status) {
+        $("#ready").button( "enable");
+        this.complete_handler(res, status);
+    };
+
+
 	this.complete_handler = function(res, status) {
 	    if (status == "success") {
 	    	var data = $.parseJSON(res.responseText);
@@ -152,5 +157,19 @@ function NetworkManagement () {
         return false;
     };
 
+    function setNextIcon(self_obj) {
+        var image_src = "/static/images/set/" + self_obj.alphabet[self_obj.image_index] + ".jpg";
+        $('#training_icon').attr('src', image_src).load(function () {
+            this.width;   // Note: $(this).width() will not work for in memory images
+
+        });
+    }
+
+    this.skip = function(event) {
+        var self_obj = event.data.ths;
+        ++self_obj.image_index;
+        setNextIcon(self_obj);
+        return false;
+    };
 }
 
