@@ -7,12 +7,34 @@
         <div class='clear' />
         <button id="do_clear">Reset</button>
         <button id="skip">Skip</button>
+        <button id="go_status">Show all</button>
+        <button id="add_sign" disabled>Add sign</button>
     </div>
 
-    {% load staticfiles %}
-	<img id = "training_icon" src="{{ STATIC_URL }}images/set/a.jpg" />
 
-	<button type="submit" id="ready">Ready</button>
+
+    {% load staticfiles %}
+    <div id = "trainingArea">
+        <img id = "training_icon" src="{{ STATIC_URL }}images/set/a.jpg" />
+
+        <button type="submit" id="ready">Ready</button>
+    </div>
+
+    <div id = "addingArea" style="display: none">
+        <form id="fileupload" action="/glove/upload/" method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
+            <div class="fileupload-buttonbar">
+                 <span class="fileinput-button">
+                     <input type="file" name="file" id="upload_file">
+                 </span>
+                <input type='input' name="sign">
+                <button type="submit" class="start">Add</button>
+
+            </div>
+        </form>
+    </div>
+
 	<div id = 'bottom_menu'>
 		<div class='clear' />
 		<button id="go_home" />
@@ -36,10 +58,24 @@
 			onlyonce = 1;
 			$.getScript("/media/navigation_management.js", function() {});
 			$.getScript("/media/dynamic_css_management.js", function() {});
-		} 
-		
-		
-		var controller = new NetworkManagement();
+		}
+
+        if('{{user.is_authenticated}}' == 'True'){
+            $("#add_sign").enable();
+        }
+
+        var controller = new NetworkManagement();
+
+        $('#fileupload').ajaxForm({
+            beforeSubmit: function() {
+            },
+//            success: function(data) {
+//
+//                $('#trainingArea').css("display", "block");
+//                $('#addingArea').css("display", "none")
+//            }
+            complete : controller.add_sign_complete_handler
+        });
 		
 		var info_for_user = "Please fix your gesture and when you're ready, click 'Ready'<br>"+
 							" Every gesture is repeated 4 times.   "
@@ -54,6 +90,8 @@
         $("#do_clear").bind('click', {ths: controller}, controller.clearOldTrainingData);
 
         $("#skip").bind('click', {ths: controller}, controller.skip);
+
+        $("#add_sign").bind('click', {ths: controller}, controller.add_sign);
 
 
 		

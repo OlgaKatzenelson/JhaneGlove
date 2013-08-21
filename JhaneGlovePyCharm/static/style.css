@@ -146,7 +146,7 @@
 	top: 160px;
 	left: 50px;
 	position: absolute;
-	width: 400px;
+	width: 500px;
 }
 
 #bottom_menu{
@@ -158,4 +158,25 @@
     position: absolute;
     top: 10px;
     left: 310px;
+}
+
+
+.bottomLabel{
+    position: absolute;
+    margin-top: 65px;
+    margin-left: -50px;
+}
+
+.signDiv{
+    float:left;
+    width: 70px;
+    height: 90px;
+    background-color: rosybrown;
+    margin: 10px;
+    font-size: 20px;
+}
+
+.signImage{
+    width: 50px;
+    margin: 10px;
 }

@@ -9,8 +9,8 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^glow/', include('JhaneGlove.urls', namespace="glow")),
-    url(r'^', include('JhaneGlove.urls', namespace="glow")),
+    url(r'^glove/', include('JhaneGlove.urls', namespace="glove")),
+    url(r'^', include('JhaneGlove.urls', namespace="glove")),
     url(r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT }),
 
 

@@ -54,7 +54,7 @@ WSGI_APPLICATION = 'JhaneGlovePyCharm.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'glow',
+        'NAME': 'glove',
         'USER': 'root',
         'PASSWORD': '',
         "HOST": '',

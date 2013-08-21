@@ -2,7 +2,7 @@ function CalibrationManagement () {
     this.start_calibration = function(event) {
         var self_obj = event.data.ths;
         $.ajax({ type:"POST",
-            url:"/glow/startCalibration/",
+            url:"/glove/startCalibration/",
             complete : self_obj.complete_handler
         });
 
@@ -13,7 +13,7 @@ function CalibrationManagement () {
     this.stop_calibration = function(event) {
         var self_obj = event.data.ths;
         $.ajax({ type:"POST",
-            url:"/glow/stopCalibration/",
+            url:"/glove/stopCalibration/",
             complete : self_obj.complete_handler
         });
         return false;

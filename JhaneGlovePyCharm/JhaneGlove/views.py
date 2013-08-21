@@ -8,8 +8,10 @@ from JhaneGlove.models import Cell, NN, DataReader, UserData, ClassData, UsersCl
 from JhaneGlovePyCharm import *
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.decorators import login_required
+from django.template import Context
 import json
 import time
+import os
 
 jsonDec = json.decoder.JSONDecoder()
 dataReader = DataReader()
@@ -17,6 +19,22 @@ dataReader = DataReader()
 #@login_required
 def index(request):
     return render(request, 'JhaneGlove/index.html')
+
+def status(request):
+
+    path = os.path.dirname(os.path.abspath(__file__))
+    myfiles = path + '/../static/images/1/set'
+#    os.chdir(myfiles)
+#    x = 0
+#    d = {}
+#    for file in os.listdir("."):
+#        d[x] = (file)
+#        x = x + 1
+
+    c = Context({"first_name": "Adrian",
+        'filedict' : os.listdir(myfiles) ,
+    })
+    return render(request, 'JhaneGlove/status.html', c)
 
 @login_required
 def callibration(request):
@@ -162,6 +180,31 @@ def ajaxRecognize(request):
 
 def clearOldTrainingData(request):
     Cell.objects.filter(nn__userId=request.user.id).delete()
+    return getHttpSuccessResponse()
+
+@login_required
+def upload(request):
+    if request.method == 'POST':
+        sign = request.POST['sign']
+        if(len(sign) == 0 or len(request.FILES)==0):
+            return getHttpResponse(0, "Please select image and enter text of sign.   ")
+
+        file = request.FILES['file']
+        userId = request.user.id
+        baseDir = 'static/images/'
+        destination = ""
+        dirname =  str(userId) + "/set/"
+        file_name = baseDir + dirname + sign + '.jpg'
+        try:
+            destination = open(file_name, 'wb+')
+        except IOError:
+            os.mkdir(os.path.join(baseDir, str(userId)))
+            os.mkdir(os.path.join(baseDir+ str(userId), 'set'))
+            destination = open(file_name, 'wb+')
+
+        for chunk in file.chunks():
+            destination.write(chunk)
+
     return getHttpSuccessResponse()
 
 def getHttpResponse(status, message):

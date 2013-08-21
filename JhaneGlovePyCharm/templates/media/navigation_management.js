@@ -1,12 +1,13 @@
 
 
 //             *GO
-$("#go_recognize").click(function() { $(location).attr('href','/glow/recognition'); });
-$("#go_train").click(function() { $(location).attr('href','/glow/test'); });
-$("#go_calibrate").click(function() { $(location).attr('href','/glow/callibration'); });
+$("#go_recognize").click(function() { $(location).attr('href','/glove/recognition'); });
+$("#go_train").click(function() { $(location).attr('href','/glove/test'); });
+$("#go_calibrate").click(function() { $(location).attr('href','/glove/callibration'); });
 
-$("#go_home").click(function() {$(location).attr('href','/glow'); });
+$("#go_home").click(function() {$(location).attr('href','/glove'); });
+$("#go_status").click(function() {$(location).attr('href','/glove/status'); });
 
 //              *DO
-$("#do_train").click(function() { $(location).attr('href','/glow/train_page'); });
+$("#do_train").click(function() { $(location).attr('href','/glove/train_page'); });
 

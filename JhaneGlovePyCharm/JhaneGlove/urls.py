@@ -15,7 +15,7 @@ urlpatterns = patterns('',
     url(r'^doRecognize/$', views.ajaxRecognize , name='ajaxRecognize'),
     url(r'^recognition/$', views.recognize , name='recognize'),
     url(r'^doClearOldTrainingData/$', views.clearOldTrainingData , name='clearOldTrainingData'),
+    url(r'^status/$', views.status , name='status'),
+    url(r'^upload/$', views.upload , name='upload'),
 
-
-    
 )

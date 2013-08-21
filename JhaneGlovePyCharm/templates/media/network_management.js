@@ -11,7 +11,7 @@ function NetworkManagement () {
     this.trainTheNetwork = function(event) {
     	var self_obj = event.data.ths;
 	    $.ajax({ type:"POST", 
-	    	url:"/glow/train/", 
+	    	url:"/glove/train/",
 			complete : self_obj.train_complete_handler
 		});
 	    return false;
@@ -21,7 +21,7 @@ function NetworkManagement () {
 		var self_obj = event.data.ths;
 		$.ajax({
 			type : "POST",
-			url : "/glow/testData/", 
+			url : "/glove/testData/",
 			complete : self_obj.complete_handler
 		});
 		return false;
@@ -39,7 +39,7 @@ function NetworkManagement () {
 		};
 		var args = {
 			type : "POST",
-			url : "/glow/add/",
+			url : "/glove/add/",
 			data : data, 
 			complete : self_obj.add_data_complete_handler
 		};
@@ -124,7 +124,7 @@ function NetworkManagement () {
     this.begin_to_recognize = function(event) {
         var self_obj = event.data.ths;
         $.ajax({ type:"POST",
-            url:"/glow/doRecognize/",
+            url:"/glove/doRecognize/",
             complete : self_obj.show_result_of_recognition
         });
         return false;
@@ -151,7 +151,7 @@ function NetworkManagement () {
     this.clearOldTrainingData = function(event) {
         var self_obj = event.data.ths;
         $.ajax({ type:"POST",
-            url:"/glow/doClearOldTrainingData/",
+            url:"/glove/doClearOldTrainingData/",
             complete : self_obj.complete_handler
         });
         return false;
@@ -170,6 +170,70 @@ function NetworkManagement () {
         ++self_obj.image_index;
         setNextIcon(self_obj);
         return false;
+    };
+
+
+    this.add_sign = function(event) {
+        var self_obj = event.data.ths;
+        $('#trainingArea').css("display", "none");
+        $('#addingArea').css("display", "block")
+    }
+
+    this.fetch_all_signs = function(){
+        var alphabetIcons = []
+
+        for(index in this.alphabet){
+            alphabetIcons.push(this.alphabet[index] + ".jpg");
+        }
+
+        var allSigns = $.merge(alphabetIcons, customFiles);
+
+        var div = document.getElementById("allSigns");
+        var i = 0;
+
+        while(i < allSigns.length){
+
+            var newDiv = document.createElement('div');
+            newDiv.setAttribute("class", "signDiv");
+            var newImage = document.createElement("img");
+
+            var imageBase = i < this.alphabet.length ? "/static/images/set/" : "/static/images/" +userId +"/set/"
+            var image_src = imageBase + allSigns[i];
+            newImage.src = image_src;
+            newImage.setAttribute("class", "signImage");
+            newDiv.appendChild(newImage);
+
+            var label = document.createElement('label');
+
+            label.innerHTML=allSigns[i].substr(0, allSigns[i].lastIndexOf("."))
+            label.setAttribute("class", "bottomLabel");
+            newDiv.appendChild(label);
+            div.appendChild(newDiv);
+
+            i++;
+        }
+
+    }
+
+    this.add_sign_complete_handler  = function(res, status) {
+        //TODO bind to this and call to complete_handler
+        if (status == "success") {
+            var data = $.parseJSON(res.responseText);
+            if(data.status == 0){
+                $(".message").message({type:"error", message: data.message});
+                $(".message").show();
+            }else{
+                var fld = document.getElementById("upload_file");
+                fld.form.reset();
+                $('#trainingArea').css("display", "block");
+                $('#addingArea').css("display", "none")
+            }
+        }
+        else
+        {
+            $(".message").message({type:"error", message: res.responseText});
+        }
+
     };
 }
 
