@@ -151,7 +151,7 @@
 
 #bottom_menu{
 	position: absolute;
-	top: 250px;
+	top: 300px;
 }
 
 #accounts{
@@ -160,9 +160,13 @@
     left: 310px;
 }
 
+#allSigns{
+    overflow-y: scroll;
+    height: 250px;
+}
 
 .bottomLabel{
-    position: absolute;
+    position: static;
     margin-top: 65px;
     margin-left: -50px;
 }
@@ -185,11 +189,11 @@
     /*position: absolute;*/
     /*top: 400px;*/
 
-    margin-top: 400px;
+    margin-top: 450px;
 }
 
 .ui-state-error{
-    margin-top: 400px;
+    margin-top: 450px;
 }
 
 .top10{
