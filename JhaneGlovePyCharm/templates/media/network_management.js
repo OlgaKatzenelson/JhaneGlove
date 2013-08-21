@@ -7,7 +7,11 @@ function NetworkManagement () {
 
     this.alphabet= ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r",
         "s", "t", "u", "v", "w", "x", "y"];
-    
+
+    $(".message").click(function() {
+        $(".info_message").removeClass( "top10" );
+    });
+
     this.trainTheNetwork = function(event) {
     	var self_obj = event.data.ths;
 	    $.ajax({ type:"POST", 
@@ -40,8 +44,12 @@ function NetworkManagement () {
 		var args = {
 			type : "POST",
 			url : "/glove/add/",
-			data : data, 
-			complete : self_obj.add_data_complete_handler
+			data : data,
+            dataType: "json",
+			complete : function(jqXHR, textStatus){
+                self_obj.add_data_complete_handler(self_obj, jqXHR, textStatus)
+            }
+
 		};
 		$.ajax(args);
 		
@@ -77,7 +85,7 @@ function NetworkManagement () {
 		return false;
 	};
 
-    this.add_data_complete_handler = function(res, status) {
+    this.add_data_complete_handler = function(self_obj, res, status) {
         $("#ready").button( "enable");
         this.complete_handler(res, status);
     };
@@ -89,6 +97,7 @@ function NetworkManagement () {
 	    	if(data.status == 0){
 	    		$(".message").message({type:"error", message: data.message});
 	    		$(".message").show();
+                $(".info_message").addClass( "top10" );
 	    	}else if(data.message != ""){
 	    		$(".info_message").message({type:"info", message: data.message}); //for first displaying
 	    		$(".info_message").message('options',{ message: data.message}); //for text replace

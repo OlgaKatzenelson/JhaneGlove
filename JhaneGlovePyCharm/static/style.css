@@ -143,10 +143,10 @@
 /*  Global view */
 
 #menu_content{
-	top: 160px;
+	top: 50px;
 	left: 50px;
 	position: absolute;
-	width: 500px;
+	width: 800px;
 }
 
 #bottom_menu{
@@ -179,4 +179,19 @@
 .signImage{
     width: 50px;
     margin: 10px;
+}
+
+.info_message{
+    /*position: absolute;*/
+    /*top: 400px;*/
+
+    margin-top: 400px;
+}
+
+.ui-state-error{
+    margin-top: 400px;
+}
+
+.top10{
+    margin-top: 10px;
 }
