@@ -24,14 +24,26 @@ def status(request):
 
     path = os.path.dirname(os.path.abspath(__file__))
     myfiles = path + '/../static/images/1/set'
-#    os.chdir(myfiles)
-#    x = 0
-#    d = {}
-#    for file in os.listdir("."):
-#        d[x] = (file)
-#        x = x + 1
 
-    c = Context({"first_name": "Adrian",
+    userClasses = UsersClassData.objects.filter(userId = request.user.id)
+    userClassInfo = []
+    nn = findNNbyUserId(request)
+    if(len(userClasses)>0):
+        for userClassData in userClasses:
+            classId = userClassData.classId
+            symbol = ClassData.objects.get_or_create(classId = userClassData.classId)[0].symbol
+            rate = "unknown"
+            if(userClassData.rate != None):
+                if (nn.numbersClose(int(userClassData.rate), userClassData.rate) == True):
+                    rate = "good"
+                else:
+                    rate ="bad"
+
+#            userClassInfo.append({'classId':classId, "symbol":str(symbol), "rate":rate})
+            userClassInfo.append([str(classId),str(symbol),rate])
+
+
+    c = Context({"userClassInfo": userClassInfo,
         'filedict' : os.listdir(myfiles) ,
     })
     return render(request, 'JhaneGlove/status.html', c)
@@ -126,12 +138,7 @@ def addData(request):
         print '******* forTest = {0}   ***** dataClass = {1}'.format(forTest, dataClassId);
         if (forTest == '1'):
             cell.forTest = True
-#            nn.addTestCell(cell)
-#        else:
-#            cell.forTest = Fa
-#            nn.addCell(cell)
         cell.save()
-#        nn.save()
     else:
         print 'empty cell'
         return getHttpResponse(0, "Arduino doesn't connected.   ")

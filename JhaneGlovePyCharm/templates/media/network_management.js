@@ -214,9 +214,12 @@ function NetworkManagement () {
 
             var label = document.createElement('label');
 
-            label.innerHTML=allSigns[i].substr(0, allSigns[i].lastIndexOf("."))
+            var symbol = allSigns[i].substr(0, allSigns[i].lastIndexOf("."));
+            var symbolRateClass = userClassInfo.get(symbol);
+            label.innerHTML= symbol;
             label.setAttribute("class", "bottomLabel");
             newDiv.appendChild(label);
+            $(newDiv).addClass(symbolRateClass);
             div.appendChild(newDiv);
 
             i++;

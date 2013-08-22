@@ -36,6 +36,7 @@ class UsersClassData(models.Model):
     id = models.AutoField(primary_key=True)
     userId = models.IntegerField(0)
     classId = models.IntegerField(0)
+    rate = models.FloatField(null=True)
 
     def __unicode__(self):
         return str(self.userData) + ": " + self.classId
@@ -210,6 +211,9 @@ class NN(models.Model):
         if type(n1) == type(int()):
             if(abs(n1-n2) < 0.2):
                 return True
+            else:
+                return False
+
         if(abs(n1[0]-n2) < 0.2):
             return True
         return False

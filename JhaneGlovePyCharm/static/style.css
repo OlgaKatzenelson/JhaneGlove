@@ -199,3 +199,15 @@
 .top10{
     margin-top: 10px;
 }
+
+.unknown{
+    background: #daa520;
+}
+
+.bad{
+    background: red;
+}
+
+.good{
+    background: green;
+}

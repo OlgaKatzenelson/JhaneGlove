@@ -2,8 +2,19 @@
 
     <script type="text/javascript">
         var customFiles = [];
+        var userClassInfo = new Map();
         var userId = '{{user.id}}';
+{#        alert('{{ userClassInfo }}');#}
     </script>
+
+    {% for userClass in userClassInfo %}
+        <script type="text/javascript">
+            userClassString = '{{userClass}}'.replace(/\&#39;/g, "").replace("[", "").replace("]", "");
+            var userClass = userClassString.split(",");
+            userClassInfo.put(userClass[1].trim(), userClass[2].trim());
+        </script>
+
+    {% endfor %}
 
     {% for image in filedict %}
         <script type="text/javascript">customFiles.push('{{image}}');</script>
