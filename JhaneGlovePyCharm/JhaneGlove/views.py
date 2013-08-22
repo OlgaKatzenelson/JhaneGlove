@@ -20,11 +20,13 @@ dataReader = DataReader()
 def index(request):
     return render(request, 'JhaneGlove/index.html')
 
-def status(request):
 
+def getUserFiles(request):
     path = os.path.dirname(os.path.abspath(__file__))
-    myfiles = path + '/../static/images/1/set'
+    userFiles = path + '/../static/images/' + str(request.user.id) + '/set'
+    return os.listdir(userFiles)
 
+def status(request):
     userClasses = UsersClassData.objects.filter(userId = request.user.id)
     userClassInfo = []
     nn = findNNbyUserId(request)
@@ -34,7 +36,7 @@ def status(request):
             symbol = ClassData.objects.get_or_create(classId = userClassData.classId)[0].symbol
             rate = "unknown"
             if(userClassData.rate != None):
-                if (nn.numbersClose(int(userClassData.rate), userClassData.rate) == True):
+                if (nn.numbersClose(int(userClassData.rate)+1, userClassData.rate) == True):
                     rate = "good"
                 else:
                     rate ="bad"
@@ -44,7 +46,7 @@ def status(request):
 
 
     c = Context({"userClassInfo": userClassInfo,
-        'filedict' : os.listdir(myfiles) ,
+        'filedict' : getUserFiles(request) ,
     })
     return render(request, 'JhaneGlove/status.html', c)
 
@@ -111,7 +113,8 @@ def recognize(request):
     return render(request, 'JhaneGlove/recognize.html')
 
 def goToTrainPage(request):
-    return render(request, 'JhaneGlove/train_page.html')
+    c = Context({'filedict' : getUserFiles(request)})
+    return render(request, 'JhaneGlove/train_page.html', c)
 
 
 

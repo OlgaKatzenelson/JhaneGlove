@@ -1,5 +1,8 @@
 {% extends "base.html" %} {% block content %}
 
+    {% for image in filedict %}
+        <script type="text/javascript">customFiles.push('{{image}}');</script>
+    {% endfor %}
 
 <div id= 'menu_content'>{% csrf_token %}
 	<div id= 'step'>Step : Adding information</div>
@@ -28,7 +31,7 @@
                  <span class="fileinput-button">
                      <input type="file" name="file" id="upload_file">
                  </span>
-                <input type='input' name="sign">
+                <input type='input' name="sign" id= "sign">
                 <button type="submit" class="start">Add</button>
 
             </div>
@@ -69,6 +72,10 @@
 
         $('#fileupload').ajaxForm({
             beforeSubmit: function() {
+                var path = $("#upload_file").val();
+                var ext = path.substring(path.indexOf(".")); //.png
+                var newFileName = $("#sign").val() + ext;
+                window.customFiles.push(newFileName);
             },
 //            success: function(data) {
 //

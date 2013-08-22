@@ -1,7 +1,7 @@
 {% extends "base.html" %} {% block content %}
 
     <script type="text/javascript">
-        var customFiles = [];
+        window.customFiles = [];
         var userClassInfo = new Map();
         var userId = '{{user.id}}';
 {#        alert('{{ userClassInfo }}');#}
@@ -17,7 +17,7 @@
     {% endfor %}
 
     {% for image in filedict %}
-        <script type="text/javascript">customFiles.push('{{image}}');</script>
+        <script type="text/javascript">window.customFiles.push('{{image}}');</script>
     {% endfor %}
 
 
