@@ -55,7 +55,7 @@ class SerialRawData(models.Model):
 
 class NN(models.Model):
     TEST_MESSAGE = '{0} will be {1}'
-    INPUT_SIZE = 6
+    INPUT_SIZE = 20 #6
     userId = models.IntegerField(0)
     ds = models.BinaryField()
     net =  models.BinaryField();
@@ -70,7 +70,7 @@ class NN(models.Model):
         #         self.ds = ClassificationDataSet(6, 1, nb_classes=4)
         #         self.net = FeedForwardNetwork()
         self.net.addInputModule(LinearLayer(self.INPUT_SIZE, name='in'))
-        self.net.addModule(SigmoidLayer(4, name='hidden_0')) #40 24
+        self.net.addModule(SigmoidLayer(10, name='hidden_0')) #40 24
 #        self.net.addModule(SigmoidLayer(3, name='hidden_1')) #SigmoidLayer
         self.net.addOutputModule(LinearLayer(1, name='out'))
         self.net.addConnection(FullConnection(self.net['in'], self.net['hidden_0']))
@@ -201,7 +201,13 @@ class NN(models.Model):
         return result
 
     def activateAndTest(self, data, dataClass):
-        activationResult = self.net.activate(data);
+        activationResult = self.net.activate(data)
+
+#        save the rate
+        usersClassData = UsersClassData.objects.get(userId = self.userId, classId = dataClass)
+        usersClassData.rate = activationResult
+        usersClassData.save()
+
         print self.TEST_MESSAGE.format(activationResult, dataClass)
         if(self.numbersClose(activationResult,dataClass)==False):
             return 0;

@@ -148,12 +148,12 @@ function NetworkManagement () {
                 $("#recognized").text( res.responseText);
             }
 
-            $(".start_recognize").click();
+            $("#start_recognize").click();
         }
         else
         {
             $(".message").message({type:"error", message:res.responseText});
-            $(".start_recognize").click();
+            $("#start_recognize").click();
         }
     }
 

@@ -17,7 +17,7 @@ port = 12345
 db = MySQLdb.connect(host="localhost",
     user="root",
     passwd="",
-    db="glow")
+    db="glove")
 
 # you must create a Cursor object. It will let
 #  you execute all the query you need

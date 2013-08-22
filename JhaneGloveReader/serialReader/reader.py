@@ -10,7 +10,7 @@ import time
 
 ARDUINO_ERROR = "Arduino doesn't connected\n";
 port = 12345                # Reserve a port for your service.
-userId = 13
+userId = 1
 adruinoUpdated = True;
 
 def updateSerWithRecvData(s, ser):

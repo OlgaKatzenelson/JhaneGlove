@@ -36,7 +36,7 @@ def status(request):
             symbol = ClassData.objects.get_or_create(classId = userClassData.classId)[0].symbol
             rate = "unknown"
             if(userClassData.rate != None):
-                if (nn.numbersClose(int(userClassData.rate)+1, userClassData.rate) == True):
+                if (nn.numbersClose(int(userClassData.rate)+1, userClassData.rate) == True or nn.numbersClose(int(userClassData.rate), userClassData.rate) == True):
                     rate = "good"
                 else:
                     rate ="bad"

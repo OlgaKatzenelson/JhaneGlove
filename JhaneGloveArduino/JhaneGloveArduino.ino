@@ -170,9 +170,12 @@ void loop() {
   
   readMux(sd);
   
+  //full version
   sprintf(str, "data:%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d", sd.ax, sd.ay, sd.az,sd.flexData[0], sd.flexData[1], sd.flexData[2],sd.flexData[3], sd.flexData[4], 
         sd.firstPhalange[0], sd.secondPhalange[0], sd.palm[0], sd.firstPhalange[1], sd.secondPhalange[1], sd.palm[1], sd.firstPhalange[2], sd.secondPhalange[2], sd.palm[2], 
         sd.firstPhalange[3], sd.secondPhalange[3], sd.palm[3]);
+//        
+        
 //   sprintf(str, "data:%d\t%d\t%d\t%d\t%d\t%d", sd.flexData[0], sd.flexData[1], sd.flexData[2], sd.firstPhalange[0], sd.secondPhalange[0], sd.palm[0]);
 
 //  sprintf(str, "data:%d\t%d\t%d\t%d\t%d\t%d", sd.ax, sd.ay, sd.az, sd.flexData[0], sd.flexData[1], sd.flexData[2]);
