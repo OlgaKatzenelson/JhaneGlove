@@ -112,7 +112,7 @@
 
 #go_calibrate{
 	width: 400px;
-	height: 200px;
+	height: 300px;
 }
 
 #ready{
@@ -123,6 +123,10 @@
 }
 #ready.ui-button-text-icon-primary .ui-button-text{
 	padding: 0px 10px 5px 52px !important;
+}
+
+#start_recognize{
+    margin-top: 15px;
 }
 
 /*               END OF MENU BUTTONS            */
@@ -210,4 +214,11 @@
 
 .good{
     background: green;
+}
+
+.title{
+    top: 10px;
+    position: absolute;
+    color: gray;
+    font-style: italic;
 }

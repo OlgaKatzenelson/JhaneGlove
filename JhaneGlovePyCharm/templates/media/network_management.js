@@ -146,6 +146,14 @@ function NetworkManagement () {
 //    	    	alert(res.responseText["message"]);
             if(res.responseText.indexOf("Empty") == -1){
                 $("#recognized").text( res.responseText);
+                var fullMessage = res.responseText;
+                var newLetter = fullMessage.substring(fullMessage.indexOf("message")+"message".length+3).replace(/\"/g, "").replace("}", "")
+
+                var oldVal = $("#fullRecognized").text();
+                var oldLastLetter = oldVal.substring(oldVal.length-1);
+                if(newLetter != "Unknown" && newLetter != "Empty" && newLetter != oldLastLetter){
+                    $("#fullRecognized").text(oldVal + newLetter);
+                }
             }
 
             $("#start_recognize").click();

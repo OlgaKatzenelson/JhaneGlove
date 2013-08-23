@@ -12,6 +12,8 @@ from django.template import Context
 import json
 import time
 import os
+import urllib2
+import urllib
 
 jsonDec = json.decoder.JSONDecoder()
 dataReader = DataReader()
@@ -182,6 +184,18 @@ def ajaxRecognize(request):
         tempResult = nn.activateOnSet(data)
         if tempResult != '':
             result = tempResult[0]
+            try:
+                if (nn.numbersClose(int(result)+1, result) == True):
+                   classData =  ClassData.objects.get(classId = int(result)+1)
+                   result = classData.symbol
+                elif (nn.numbersClose(int(result), result) == True):
+                    classData =  ClassData.objects.get(classId = int(result))
+                    result = classData.symbol
+                else:
+                    result = 'Unknown'
+            except ObjectDoesNotExist:
+                result = 'Unknown'
+
         print "Recognize result: {0}      data {1}".format(result, data)
     else:
         result = 'Empty'
@@ -227,5 +241,18 @@ def getHttpResponse(status, message):
 
 def getHttpSuccessResponse():
     return getHttpResponse(1, '')
+
+
+def text_to_sound(request):
+    opener = urllib2.build_opener()
+    opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+    param_string = urllib.urlencode({
+        "ie": "UTF-8",
+        "tl": "en",
+        "q": request.POST['text'].encode('utf-8'),
+        })
+    url = "http://translate.google.com/translate_tts?" + param_string
+    response = opener.open(url)
+    return response.read()
 
 

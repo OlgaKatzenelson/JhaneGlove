@@ -17,5 +17,7 @@ urlpatterns = patterns('',
     url(r'^doClearOldTrainingData/$', views.clearOldTrainingData , name='clearOldTrainingData'),
     url(r'^status/$', views.status , name='status'),
     url(r'^upload/$', views.upload , name='upload'),
+    url(r'^text_to_sound/$', views.text_to_sound , name='text_to_sound'),
+
 
 )
