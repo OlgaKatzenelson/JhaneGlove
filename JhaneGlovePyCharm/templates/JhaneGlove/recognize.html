@@ -1,18 +1,9 @@
 {% extends "base.html" %} {% block content %}
 
-{#    <form id="say-form">#}
-{#        <input value="Awesome" id="say-text">#}
-{#        <button id="say-button">Say!</button>#}
-{#    </form>#}
-
-{#    <object classid="clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B" codebase="http://www.apple.com/qtactivex/qtplugin.cab" width="300" height="50">#}
-        {#        <param name="src" value="http://translate.google.com/translate_tts?q=My+name+is+John">#}
-        {#        <param name="autoplay" value="false">#}
-{#        <embed type="audio/x-wav" src="http://translate.google.com/translate_tts?ie=UTF-8&q=Welcome%20to%20stack%20overflow&tl=en&total=1&idx=0&textlen=23&prev=input" autoplay="false" autostart="false" width="300" height="50">#}
-{#    </object>#}
-
-
-    <iframe name="cwindow" id="cwindow" style="border:0px double;"  style="border:1px double;" width="0" height="0" src="http://translate.google.com/translate_tts?tl=en&q=Screen Reader!" rel='noreferrer'></iframe>
+    <iframe name="cwindow" id="cwindow" style="border:0px double;"
+            style="border:1px double;" width="0" height="0"
+          src="http://translate.google.com/translate_tts?tl=en&q="
+            rel='noreferrer'></iframe>
 
 
 <div id= 'menu_content'>{% csrf_token %}
@@ -39,67 +30,25 @@
         var controller = new NetworkManagement();
         $("#start_recognize").bind('click', {ths: controller}, controller.begin_to_recognize);
 
+        function endOfSentenceCheck(event)
+        {
+            var text = $("#fullRecognized").text();
+            var lastLetter = text.substring(text.length-1);
+            if(lastLetter == "."){
+                hear();
+            }
+         }
+
+        $("#fullRecognized").bind('DOMNodeInserted', endOfSentenceCheck); //DOMNodeRemoved
+
         function hear()
         {
-            var pqr = $("#text").text();
+            var pqr = $("#fullRecognized").text();
             document.getElementById("cwindow").src = "http://translate.google.com/translate_tts?tl=en&q="+pqr + "&tl=en&total=1&idx=0&textlen=4&prev=input";
             document.getElementById("cwindow").contentWindow.location.reload();
         }
 
         $("#play").bind('click',hear);
-//        $("#play").bind('click', function(){
-//            $.ajax({ type:'GET',
-//                crossDomain:true,
-//                cache: false,
-////                dataType: "json",
-//                dataType: 'jsonp',
-//                beforeSend: function(x) {
-//                    x.setRequestHeader('Authorization', "");
-//                    if(x && x.overrideMimeType) {
-//                        x.overrideMimeType("application/j-son;charset=UTF-8");
-//                    }
-//                },
-//                url:"http://translate.google.com/translate_tts?ie=UTF-8&q=Welcome%20to%20stack%20overflow&tl=en&total=1&idx=0&textlen=23&prev=input"
-//            })}
-//        );
-
-//        $("#play").bind('click', function(){
-//            $.ajax({ type:'POST',
-//                data: {
-//                    text : $("#text").text()
-//                },
-//                url:"/glove/text_to_sound/"
-//            })}
-//        );
-
-
-
-
-//                $("#play").bind('click', function(){
-//                    var embedTag = document.getElementById("emb");
-//                    var oParent = embedTag.parentElement;
-//                    var oEmbed = oParent.appendChild(document.createElement('embed'));
-//
-//                    oEmbed.src = "http://translate.google.com/translate_tts?ie=UTF-8&q=" + $("#text").text()+ "&tl=en&total=1&idx=0&textlen=4&prev=input";
-//                    oEmbed.autoplay = "true";
-//                    oEmbed.autostart = "true";
-//                    oEmbed.id = "emb";
-//                    oEmbed.type='audio/x-wav';
-//                    oEmbed.width='300';
-//                    oEmbed.height='50';
-//                    oEmbed.rel='noreferrer';
-//
-//                    oParent.removeChild(embedTag);
-//                 });
-
-
-//        var t = $("<object classid='clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B' codebase='http://www.apple.com/qtactivex/qtplugin.cab' width='300' height='50'>" +
-//                "<embed id = 'emb' type='audio/x-wav' src='http://translate.google.com/translate_tts?ie=UTF-8&q=" + $("#text").text()+
-//        "&tl=en&total=1&idx=0&textlen=4&prev=input' autoplay='false' autostart='false' width='300' height='50'>");
-//        $("#fullRecognized").append(t);
-
-
-
 
 	});
 </script>
