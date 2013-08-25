@@ -12,6 +12,7 @@ from django.template import Context
 import json
 import time
 import os
+from django.db.models import Q
 import urllib2
 import urllib
 
@@ -20,6 +21,24 @@ dataReader = DataReader()
 
 #@login_required
 def index(request):
+    _userId = 0;
+    userData = None
+    if(request.user == None or request.user.id == None):
+        userData = UserData.objects.get( userId = 0)
+    else:
+        _userId = request.user.id
+        userData = UserData.objects.get( userId = request.user.id)
+
+    userData.isActive = 1
+    userData.save()
+    usersData= UserData.objects.filter(~Q(userId = _userId))
+
+    if(len(usersData) > 0):
+        for userData in usersData:
+            userData.isActive = 0
+            userData.save()
+
+
     return render(request, 'JhaneGlove/index.html')
 
 
@@ -139,9 +158,13 @@ def addData(request):
     time.sleep(1)
     dataClassValue = request.POST['class_data']
 
+    _userId = 0
+    if(request.user != None and request.user.id != None):
+        _userId = request.user.id
+
     # update ClassData and UsersClassData
     dataClassId = ClassData.objects.get_or_create(symbol = dataClassValue)[0].classId
-    UsersClassData.objects.get_or_create(userId = request.user.id, classId = dataClassId)
+    UsersClassData.objects.get_or_create(userId = _userId, classId = dataClassId)
 
     #   request.session
     forTest  = request.POST['for_test']
@@ -167,10 +190,14 @@ def addData(request):
     return getHttpSuccessResponse()
 
 def findNNbyUserId(request):
+    _userId = 0
+    if(request.user != None and request.user.id != None):
+        _userId = request.user.id
+
     try:
-        nn = NN.objects.get(userId=request.user.id)
+        nn = NN.objects.get(userId=_userId)
     except ObjectDoesNotExist:
-        nn = NN(userId=request.user.id)
+        nn = NN(userId=_userId)
         nn.save()
     return nn
 
@@ -192,7 +219,10 @@ def ajaxRecognize(request):
 #    time.sleep(1)
     nn = findNNbyUserId(request)
 
-    data = dataReader.loadData(request.user.id)
+    userId = 0;
+    if(request.user!=None and request.user.id != None):
+        userId =  request.user.id;
+    data = dataReader.loadData(userId)
     result = 'Unknown'
     if data != '' and len(data) >0:
         tempResult = nn.activateOnSet(data)
@@ -218,6 +248,7 @@ def ajaxRecognize(request):
 
 def clearOldTrainingData(request):
     Cell.objects.filter(nn__userId=request.user.id).delete()
+    UsersClassData.objects.filter(userId=request.user.id).delete()
     return getHttpSuccessResponse()
 
 @login_required

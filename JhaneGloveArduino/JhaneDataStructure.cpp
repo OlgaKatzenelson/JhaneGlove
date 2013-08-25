@@ -27,6 +27,7 @@ void initSensorsData(SensorsData* sd){
 
 void initSystemState(SystemState* ss){
   (*ss).isCalibration = false;
+  (*ss).fullData = true;
 }
 
 int16_t calMap(int16_t val, int16_t minVal, int16_t maxVal, int16_t absMin, int16_t absMax){

@@ -4,12 +4,14 @@ import os
 import pickle
 import cPickle
 import time
+from django.db.models import Q
 
 from pybrain.datasets import *
 from pybrain.supervised.trainers import BackpropTrainer
 from pybrain.structure import *
 
 from django import template
+from django.core.exceptions import ObjectDoesNotExist
 
 
 register = template.Library()
@@ -21,6 +23,7 @@ class UserData(models.Model):
     minValuesList = models.TextField(null=True)
     maxValuesList = models.TextField(null=True)
     isDirt = models.IntegerField(0)
+    isActive = models.IntegerField(0)
 
     def __unicode__(self):
         return str(self.userId) + "( " + str(self.startCallibrationTime) + " : " + str(self.stopCallibrationTime) + " )"
@@ -81,7 +84,7 @@ class NN(models.Model):
         self.trainer = BackpropTrainer(self.net, dataset=self.ds, momentum=0.1, verbose=False, weightdecay=0.01, learningrate=0.003)  # , learningrate=0.01, verbose=True, learningrate=0.1, momentum=0.9
 
     def loadDataForTrain(self):
-        cells = Cell.objects.filter(nn_id = self.id, forTest = False)
+        cells = Cell.objects.filter(Q(nn_id = self.id, forTest = False) | Q(userId = -1, forTest = False))
         if(len(cells)>0):
             self.ds.clear()
             for cell in cells:
@@ -137,6 +140,8 @@ class NN(models.Model):
         acceptableError = 0.003 #0.001
         counter = 15
         o = 0
+
+        self.ds.nb_classes = len(UsersClassData.objects.filter(userId=self.userId)) + 2
         # train until acceptable error reached
         while trained == False and counter > 0:
 #            self.trainer.trainUntilConvergence()
@@ -176,7 +181,7 @@ class NN(models.Model):
         totalSuccess = 0;
 
         self.net= cPickle.loads(str(self.pickled_net))
-        cells = Cell.objects.filter(nn_id = self.id, forTest = True)
+        cells = Cell.objects.filter(Q(nn_id = self.id, forTest = True) | Q(userId = -1, forTest = True))
         totalCounter = len(cells);
         if(totalCounter>0):
             for cell in cells:
@@ -186,7 +191,7 @@ class NN(models.Model):
 
         print "total {0}  success {1}".format(totalCounter, totalSuccess);
         if(totalCounter == totalSuccess):
-            return 0;
+            return 100;
         return   float(totalSuccess) / totalCounter * 100
 
     def activate(self, data):
@@ -204,9 +209,13 @@ class NN(models.Model):
         activationResult = self.net.activate(data)
 
 #        save the rate
-        usersClassData = UsersClassData.objects.get(userId = self.userId, classId = dataClass)
-        usersClassData.rate = activationResult
-        usersClassData.save()
+        try:
+            usersClassData= UsersClassData.objects.get(userId = self.userId, classId = dataClass)
+            usersClassData.rate = activationResult
+            usersClassData.save()
+        except ObjectDoesNotExist:
+            # default command
+            noOp = "noOP"
 
         print self.TEST_MESSAGE.format(activationResult, dataClass)
         if(self.numbersClose(activationResult,dataClass)==False):

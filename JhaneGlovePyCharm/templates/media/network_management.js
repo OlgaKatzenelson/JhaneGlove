@@ -64,7 +64,6 @@ function NetworkManagement () {
 		self_obj.curent_index ++;
 		// --------- send request------
 		var data_for_test = (self_obj.curent_index > 2) ? 1 : 0;
-        //TODO
 
         var classData = self_obj.allSigns[self_obj.image_index];
         classData = classData.substring(0, classData.indexOf("."));
@@ -176,13 +175,20 @@ function NetworkManagement () {
         if (status == "success") {
 //    	    	alert(res.responseText["message"]);
             if(res.responseText.indexOf("Empty") == -1){
-                $("#recognized").text( res.responseText);
+
                 var fullMessage = res.responseText;
                 var newLetter = fullMessage.substring(fullMessage.indexOf("message")+"message".length+3).replace(/\"/g, "").replace("}", "")
+                if(newLetter == "Unknown"){
+                    newLetter = "?";
+                }else if(newLetter == "_"){
+                    newLetter = " ";
+                }
+
+                $("#recognized").text( newLetter);
 
                 var oldVal = $("#fullRecognized").text();
                 var oldLastLetter = oldVal.substring(oldVal.length-1);
-                if(newLetter != "Unknown" && newLetter != "Empty" && newLetter != oldLastLetter){
+                if(newLetter != "?" && newLetter != "Empty" && newLetter != oldLastLetter){
                     $("#fullRecognized").text(oldVal + newLetter);
                 }
             }
@@ -206,11 +212,9 @@ function NetworkManagement () {
     };
 
     function setNextIcon(self_obj) {
-        //TODO
         var imageBase = self_obj.image_index < self_obj.alphabet.length ? "/static/images/set/" : "/static/images/" +userId +"/set/"
         var image_src = imageBase + self_obj.allSigns[self_obj.image_index];
 
-//        var image_src = "/static/images/set/" + self_obj.alphabet[self_obj.image_index] + ".jpg";
         $('#training_icon').attr('src', image_src).load(function () {
             this.width;   // Note: $(this).width() will not work for in memory images
 
@@ -246,7 +250,6 @@ function NetworkManagement () {
             newDiv.setAttribute("class", "signDiv");
             var newImage = document.createElement("img");
 
-            //TODO
             var imageBase = i < this.alphabet.length ? "/static/images/set/" : "/static/images/" +userId +"/set/"
             var image_src = imageBase + this.allSigns[i];
             newImage.src = image_src;

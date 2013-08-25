@@ -24,6 +24,7 @@ struct sensorsData
   struct systemState 
   {
       bool isCalibration;
+      bool fullData;
   };
   
   enum StateType               // Declare enum type StateType

@@ -147,14 +147,6 @@ void setup() {
 
 
 void loop() {
-//  Serial.print("Value at channel ");
-//    Serial.print(0);
-//    Serial.print("is : ");
-//    Serial.println(readMux(0));
-//    delay(1000); 
-//    Serial.print(1);
-//    Serial.print("is : ");
-//    Serial.println(readMux(1));
 
   // read raw accel/gyro measurements from device
   accelgyro.getMotion6(&sd.ax, &sd.ay, &sd.az, &sd.gx, &sd.gy, &sd.gz);
@@ -169,11 +161,29 @@ void loop() {
  
   
   readMux(sd);
+  if(sd.secondPhalange[3] != 0){
+    state.fullData = !state.fullData;
+    delay(2000);
+    return;
+  }
   
-  //full version
-  sprintf(str, "data:%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d", sd.ax, sd.ay, sd.az,sd.flexData[0], sd.flexData[1], sd.flexData[2],sd.flexData[3], sd.flexData[4], 
+  if( sd.firstPhalange[3] != 0 && state.fullData == false){
+    //dot
+     sprintf(str, "data:%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d",0, 0, 0,0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, sd.firstPhalange[3], 0, 0);
+  } else if( sd.palm[3] != 0 && state.fullData == false){
+    //space
+    sprintf(str, "data:%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d",0, 0, 0,0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, sd.palm[3]);
+  }else if( state.fullData == true){
+    //full version
+    sprintf(str, "data:%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d", sd.ax, sd.ay, sd.az,sd.flexData[0], sd.flexData[1], sd.flexData[2],sd.flexData[3], sd.flexData[4], 
         sd.firstPhalange[0], sd.secondPhalange[0], sd.palm[0], sd.firstPhalange[1], sd.secondPhalange[1], sd.palm[1], sd.firstPhalange[2], sd.secondPhalange[2], sd.palm[2], 
         sd.firstPhalange[3], sd.secondPhalange[3], sd.palm[3]);
+  }else{
+      sprintf(str, "data:%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d", 0, 0, 0,sd.flexData[0], sd.flexData[1], sd.flexData[2],sd.flexData[3], sd.flexData[4], 
+        sd.firstPhalange[0], sd.secondPhalange[0], sd.palm[0], sd.firstPhalange[1], sd.secondPhalange[1], sd.palm[1], sd.firstPhalange[2], sd.secondPhalange[2], sd.palm[2], 
+        sd.firstPhalange[3], sd.secondPhalange[3], sd.palm[3]);
+  }
+  
 //        
         
 //   sprintf(str, "data:%d\t%d\t%d\t%d\t%d\t%d", sd.flexData[0], sd.flexData[1], sd.flexData[2], sd.firstPhalange[0], sd.secondPhalange[0], sd.palm[0]);
@@ -186,10 +196,19 @@ void loop() {
   Serial.flush();
 
   // blink LED to indicate activity
-  blinkState = !blinkState;
-  digitalWrite(LED_PIN, blinkState);
+  if( state.fullData == true){
+      for(int i=0; i< 10; i++){
+         blinkState = !blinkState;
+         digitalWrite(LED_PIN, blinkState);
+          delay(100); 
+      }
+  }else{
+       blinkState = !blinkState;
+       digitalWrite(LED_PIN, blinkState);
   
-   // pause before taking the next reading
-  delay(1000); 
+       // pause before taking the next reading
+       delay(1000); 
+  }
+ 
 }
 

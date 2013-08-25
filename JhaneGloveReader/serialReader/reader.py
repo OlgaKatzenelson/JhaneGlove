@@ -19,6 +19,10 @@ def updateSerWithRecvData(s, ser):
         if(updateMsg.startswith("min")):
             global adruinoUpdated
             adruinoUpdated = False
+        elif(updateMsg.startswith("activeUser")):
+            global userId
+            userId = updateMsg.replace("activeUser:", "").replace("\n", "")
+
         ser.write(updateMsg)
         ser.flush()
         time.sleep(1.5)

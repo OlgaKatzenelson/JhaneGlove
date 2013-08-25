@@ -20,7 +20,7 @@
 <div id= 'menu_content'>{% csrf_token %}
 	<div id= 'step'>Step : Adding information</div>
     <div id = 'top_menu'>
-        <button id="do_clear" disabled>Reset</button>
+        <button id="do_clear" >Reset</button>
         <button id="skip" disabled>Skip</button>
         <button id="go_status">Show all</button>
         <button id="add_sign" disabled>Add sign</button>
@@ -32,7 +32,7 @@
     <div id = "trainingArea">
         <img id = "training_icon" src="{{ STATIC_URL }}images/set/a.jpg" />
 
-        <button type="submit" id="ready" disabled>Ready</button>
+        <button type="submit" id="ready" >Ready</button>
     </div>
 
     <div id = "addingArea" style="display: none">
@@ -54,7 +54,7 @@
     <div id = 'bottom_menu'>
         <div class='clear' />
         <button id="go_home" />
-        <button id="exec_train" disabled>Train</button>
+        <button id="exec_train" >Train</button>
         <button id="do_test" disabled>Test</button>
     </div>
 

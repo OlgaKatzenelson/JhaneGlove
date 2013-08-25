@@ -24,6 +24,7 @@ db = MySQLdb.connect(host="localhost",
 cursor = db.cursor()
 
 selectUserDataSql = """SELECT minValuesList, maxValuesList, isDirt FROM JhaneGlove_userdata WHERE userId = %s"""
+selectUserIdSql = """SELECT userId FROM JhaneGlove_userdata WHERE isActive = 1"""
 updateUserDataDirtBitSql = """UPDATE JhaneGlove_userdata SET isDirt= %s WHERE userId = %s"""
 updateUserDataStartTimestampBitSql = """UPDATE JhaneGlove_userdata SET startCallibrationTime= %s WHERE userId = %s """
 
@@ -108,6 +109,17 @@ class Host(asyncore.dispatcher):
     def check_for_client_updates(self):
         if(self.stepCounter >2):
             self.stepCounter =0;
+
+            cursor.execute(selectUserIdSql)
+#            db.commit()
+            _userId=cursor.fetchone()
+            global userId
+            if(userId != _userId[0]):
+#                user was changed
+                userId =  _userId[0]
+                message ="activeUser:" + str(userId)  + "\n"
+                self.broadcast(message)
+
             cursor.execute(selectUserDataSql, (userId))
             db.commit()
             data=cursor.fetchone()    #fetchall()
