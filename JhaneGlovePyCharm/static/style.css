@@ -1,3 +1,39 @@
+body {font-family: arial;}
+.clearfix:after {
+    content: ".";
+    display: block;
+    clear: both;
+    visibility: hidden;
+    line-height: 0;
+    height: 0;
+}
+
+.clearfix {
+    display: inline-block;
+}
+
+html[xmlns] .clearfix {
+    display: block;
+}
+
+* html .clearfix {
+    height: 1%;
+}
+.mainContainer {
+    width: 50%;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 0.3em;
+    min-height: 370px;
+    position: relative;
+
+}
+
+#step {
+    background: #eee;
+    padding: 0.2em;
+}
+
 /*               MENU BUTTONS            */
 .ui-button-icon-primary.ui-icon.trainIcon {
     height: 200px;
@@ -6,18 +42,22 @@
     text-align: center;
     left: 50%;
     top: 5px;
-    background-image: url("images/icons/tool.png") !important;
+    background-image: url("images/icons/start.png") !important;
     background-size: 80px 60px;
 }
 
 .ui-button-icon-primary.ui-icon.recognizeIcon {
-    height: 32px;
-    width: 32px;
+    height: 132px;
+    width: 258px;
     margin: 10px 0 2em -16px;
     text-align: center;
-    left: 50%;
+    left: 40%;
     top: 5px;
-    background-image: url("images/icons/rec.jpg") !important;
+    background-image: url("images/icons/recognize.jpeg") !important;
+}
+
+#go_recognize .ui-button-text{
+    margin-top: 60px;
 }
 
 .ui-button-icon-primary.ui-icon.homeIcon {
@@ -88,12 +128,13 @@
 }
 
 #go_train{
-	width: 400px;
-	height: 200px;
+	width: 575px;
+	height: 154px;
 }
 
 #go_recognize{
-	width: 400px;
+	width: 575px;
+    height: 185px;
 }
 
 #go_home{
@@ -103,7 +144,6 @@
 #go_home, #do_train, #do_test, #exec_train{
 	height: 40px;
 	margin-right: 5px;
-	margin-top: 15px;
 }
 
 #do_train, #do_test, #exec_train{
@@ -111,8 +151,9 @@
 }
 
 #go_calibrate{
-	width: 400px;
-	height: 300px;
+	width: 575px;
+	height: 240px;
+    margin-top: 1em;
 }
 
 #ready{
@@ -124,9 +165,18 @@
 #ready.ui-button-text-icon-primary .ui-button-text{
 	padding: 0px 10px 5px 52px !important;
 }
+#fullRecognized {
+    font-size: 120%;
+    margin: 2em 0 0 2em;
+    display: inline-block;
+}
+#recognized{font-size: 150%;
+    color: #2F7F9E;
+    margin-left: 0.1em;
+    display: inline-block;
+}
 
 #start_recognize{
-    margin-top: 15px;
 }
 
 /*               END OF MENU BUTTONS            */
@@ -147,21 +197,35 @@
 /*  Global view */
 
 #menu_content{
-	top: 50px;
-	left: 50px;
-	position: absolute;
-	width: 800px;
+    clear: both;
+    float: left;
+    width: 100%
+}
+#menu_content {
+}
+#top_menu {
+}
+.fileupload-buttonbar
+{
+    width: 80%;
+    margin: 0 auto;
+}
+#addingArea {
+    margin-top: 1.3em;
+
 }
 
 #bottom_menu{
-	position: absolute;
-	top: 300px;
+    position: absolute;
+    bottom: 0.2em;
+    left: 1%;
 }
 
 #accounts{
-    position: absolute;
-    top: 10px;
-    left: 310px;
+    width: 40%;
+    float: right;
+    margin-right: 1em;
+    text-align: right;
 }
 
 #allSigns{
@@ -170,55 +234,65 @@
 }
 
 .bottomLabel{
-    position: static;
-    margin-top: 65px;
-    margin-left: -50px;
+    display: block;
+    width: 100%;
+    text-align: center;
 }
 
 .signDiv{
     float:left;
     width: 70px;
-    height: 90px;
-    background-color: rosybrown;
+    background-color: transparent;
     margin: 10px;
     font-size: 20px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 15px #444;
 }
 
 .signImage{
-    width: 50px;
-    margin: 10px;
+    height: 70px;
+    margin: 6px;
+    max-width: 58px;
 }
 
-.info_message{
-    /*position: absolute;*/
-    /*top: 400px;*/
-
-    margin-top: 450px;
+.info_message, .message{
+    position: absolute;
+    width: 98%;
+    z-index: 10;
+    opacity: 0.9;
+    cursor: pointer;
 }
+.message-container p{margin-left: 1%;}
 
 .ui-state-error{
-    margin-top: 450px;
 }
 
 .top10{
     margin-top: 10px;
 }
 
+.top65{
+    margin-top: 65px;
+}
+
 .unknown{
-    background: #daa520;
+
+    box-shadow: 0px 0px 15px #444;
 }
 
 .bad{
-    background: red;
+
+    box-shadow: 0px 0px 15px red;
 }
 
 .good{
-    background: green;
+
+    box-shadow: 0px 0px 15px green;
 }
 
 .title{
-    top: 10px;
-    position: absolute;
     color: gray;
     font-style: italic;
+    width: 50%;
+    float: left;
 }

@@ -8,7 +8,7 @@ import time
 
 import MySQLdb
 
-userId = '13'
+userId = '1'
 
 MAX_MESSAGE_LENGTH = 1024
 host = 'localhost'

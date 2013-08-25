@@ -23,7 +23,15 @@
 
 </head>
 <body>
+    <div class="mainContainer clearfix">
     <div class="title">JhaneGlove</div>
+    <div id="accounts" class="clearfix">
+        {% if not user.is_authenticated %}<a href="/accounts/login/">login</a> | <a
+                href="/accounts/register/">register</a>{% endif %}
+
+        {% if user.is_authenticated %}<a href="/accounts/logout/">logout</a>
+        {% endif %}
+    </div>
 	<div class="container">
 		<div class="message"></div>
 		<div class="info_message"></div>
@@ -104,13 +112,6 @@
     }
 </script>
 
-    <div id="accounts">
-        <div class='clear' />
-        {% if not user.is_authenticated %}<a href="/accounts/login/">login</a> | <a
-                href="/accounts/register/">register</a>{% endif %}
-
-        {% if user.is_authenticated %}<a href="/accounts/logout/">logout</a>
-        {% endif %}
     </div>
 
 </body>

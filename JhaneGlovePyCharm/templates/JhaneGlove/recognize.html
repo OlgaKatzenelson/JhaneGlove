@@ -1,9 +1,9 @@
 {% extends "base.html" %} {% block content %}
 
-    <form id="say-form">
-        <input value="Awesome" id="say-text">
-        <button id="say-button">Say!</button>
-    </form>
+{#    <form id="say-form">#}
+{#        <input value="Awesome" id="say-text">#}
+{#        <button id="say-button">Say!</button>#}
+{#    </form>#}
 
 {#    <object classid="clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B" codebase="http://www.apple.com/qtactivex/qtplugin.cab" width="300" height="50">#}
         {#        <param name="src" value="http://translate.google.com/translate_tts?q=My+name+is+John">#}
@@ -12,29 +12,23 @@
 {#    </object>#}
 
 
-
+    <iframe name="cwindow" id="cwindow" style="border:0px double;"  style="border:1px double;" width="0" height="0" src="http://translate.google.com/translate_tts?tl=en&q=Screen Reader!" rel='noreferrer'></iframe>
 
 
 <div id= 'menu_content'>{% csrf_token %}
     <div id= 'step'>Step : Recognizing</div>
-    <div id = "text">Obya</div>
-    <div>
-        Full text
-        <div id = "fullRecognized"></div>
+    <div id = "text"></div>
+    <div class="recognitionContent">
+        <div id = "fullRecognized">hello</div><span id = "recognized">w</span>
+
     </div>
 
-    <div>
-        Current letter
-        <div id = "recognized"></div>
-    </div>
-
-    <div id = 'bottom_menu'>
-        <div class='clear' />
-        <button id="go_home" />
+</div>
+    <div id = 'bottom_menu' class="top10">
+        <button id="go_home"></button>
         <button type="submit" value = "1" id="start_recognize">Start</button>
         <button id="play" >Play</button>
     </div>
-</div>
 
 <script type="text/javascript">
 	$(document).ready(function() {
@@ -45,6 +39,14 @@
         var controller = new NetworkManagement();
         $("#start_recognize").bind('click', {ths: controller}, controller.begin_to_recognize);
 
+        function hear()
+        {
+            var pqr = $("#text").text();
+            document.getElementById("cwindow").src = "http://translate.google.com/translate_tts?tl=en&q="+pqr + "&tl=en&total=1&idx=0&textlen=4&prev=input";
+            document.getElementById("cwindow").contentWindow.location.reload();
+        }
+
+        $("#play").bind('click',hear);
 //        $("#play").bind('click', function(){
 //            $.ajax({ type:'GET',
 //                crossDomain:true,
@@ -61,14 +63,14 @@
 //            })}
 //        );
 
-        $("#play").bind('click', function(){
-            $.ajax({ type:'POST',
-                data: {
-                    text : $("#text").text()
-                },
-                url:"/glove/text_to_sound/"
-            })}
-        );
+//        $("#play").bind('click', function(){
+//            $.ajax({ type:'POST',
+//                data: {
+//                    text : $("#text").text()
+//                },
+//                url:"/glove/text_to_sound/"
+//            })}
+//        );
 
 
 
@@ -85,15 +87,16 @@
 //                    oEmbed.type='audio/x-wav';
 //                    oEmbed.width='300';
 //                    oEmbed.height='50';
+//                    oEmbed.rel='noreferrer';
 //
 //                    oParent.removeChild(embedTag);
 //                 });
 
 
-        var t = $("<object classid='clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B' codebase='http://www.apple.com/qtactivex/qtplugin.cab' width='300' height='50'>" +
-                "<embed id = 'emb' type='audio/x-wav' src='http://translate.google.com/translate_tts?ie=UTF-8&q=" + $("#text").text()+
-        "&tl=en&total=1&idx=0&textlen=4&prev=input' autoplay='false' autostart='false' width='300' height='50'>");
-        $("#fullRecognized").append(t);
+//        var t = $("<object classid='clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B' codebase='http://www.apple.com/qtactivex/qtplugin.cab' width='300' height='50'>" +
+//                "<embed id = 'emb' type='audio/x-wav' src='http://translate.google.com/translate_tts?ie=UTF-8&q=" + $("#text").text()+
+//        "&tl=en&total=1&idx=0&textlen=4&prev=input' autoplay='false' autostart='false' width='300' height='50'>");
+//        $("#fullRecognized").append(t);
 
 
 

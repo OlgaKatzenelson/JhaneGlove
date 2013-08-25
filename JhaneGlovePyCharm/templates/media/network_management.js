@@ -9,7 +9,7 @@ function NetworkManagement () {
         "s", "t", "u", "v", "w", "x", "y"];
 
     $(".message").click(function() {
-        $(".info_message").removeClass( "top10" );
+        $(".info_message").removeClass( "top65" );
     });
 
     this.trainTheNetwork = function(event) {
@@ -97,7 +97,7 @@ function NetworkManagement () {
 	    	if(data.status == 0){
 	    		$(".message").message({type:"error", message: data.message});
 	    		$(".message").show();
-                $(".info_message").addClass( "top10" );
+                $(".info_message").addClass( "top65" );
 	    	}else if(data.message != ""){
 	    		$(".info_message").message({type:"info", message: data.message}); //for first displaying
 	    		$(".info_message").message('options',{ message: data.message}); //for text replace

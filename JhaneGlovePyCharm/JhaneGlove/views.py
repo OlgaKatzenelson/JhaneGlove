@@ -244,15 +244,16 @@ def getHttpSuccessResponse():
 
 
 def text_to_sound(request):
-    opener = urllib2.build_opener()
-    opener.addheaders = [('User-agent', 'Mozilla/5.0')]
-    param_string = urllib.urlencode({
-        "ie": "UTF-8",
-        "tl": "en",
-        "q": request.POST['text'].encode('utf-8'),
-        })
-    url = "http://translate.google.com/translate_tts?" + param_string
-    response = opener.open(url)
-    return response.read()
+    xx
+#    opener = urllib2.build_opener()
+#    opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+#    param_string = urllib.urlencode({
+#        "ie": "UTF-8",
+#        "tl": "en",
+#        "q": request.POST['text'].encode('utf-8'),
+#        })
+#    url = "http://translate.google.com/translate_tts?" + param_string
+#    response = opener.open(url)
+#    return response.read()
 
 
