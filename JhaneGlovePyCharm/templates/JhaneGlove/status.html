@@ -4,7 +4,6 @@
         window.customFiles = [];
         var userClassInfo = new Map();
         var userId = '{{user.id}}';
-{#        alert('{{ userClassInfo }}');#}
     </script>
 
     {% for userClass in userClassInfo %}
@@ -54,12 +53,9 @@
 
 
             var controller = new NetworkManagement();
+            controller.init();
 
             controller.fetch_all_signs();
-//            $("#skip").bind('click', {ths: controller}, controller.skip);
-
-
-
         });
     </script>
 

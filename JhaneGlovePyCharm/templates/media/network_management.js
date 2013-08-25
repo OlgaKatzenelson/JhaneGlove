@@ -6,11 +6,38 @@ function NetworkManagement () {
 	this.snapshot_num = 4;
 
     this.alphabet= ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r",
-        "s", "t", "u", "v", "w", "x", "y"];
+        "s", "t", "u", "v", "w", "x", "y", "z"];
+
+    this.allSigns =[];
 
     $(".message").click(function() {
         $(".info_message").removeClass( "top65" );
     });
+
+    this.init = function() {
+        var alphabetIcons = []
+
+        for(index in this.alphabet){
+            alphabetIcons.push(this.alphabet[index] + ".jpg");
+        }
+        this.allSigns = $.merge(alphabetIcons, window.customFiles);
+
+        this.max_image_index = this.allSigns.length;
+
+        //set start training index to first bad trained item
+        for(index in this.allSigns){
+            var symbol = this.allSigns[index].substr(0, this.allSigns[index].lastIndexOf("."));
+            var symbolRateClass = userClassInfo.get(symbol);
+            if(symbolRateClass != "good"){
+                this.image_index = index;
+                setNextIcon(this);
+                return false;
+            }
+        }
+
+
+        return false;
+    };
 
     this.trainTheNetwork = function(event) {
     	var self_obj = event.data.ths;
@@ -37,8 +64,12 @@ function NetworkManagement () {
 		self_obj.curent_index ++;
 		// --------- send request------
 		var data_for_test = (self_obj.curent_index > 2) ? 1 : 0;
+        //TODO
+
+        var classData = self_obj.allSigns[self_obj.image_index];
+        classData = classData.substring(0, classData.indexOf("."));
 		var data = {
-			class_data : self_obj.alphabet[self_obj.image_index],
+			class_data : classData,//self_obj.alphabet[self_obj.image_index],
 			for_test : data_for_test
 		};
 		var args = {
@@ -72,7 +103,7 @@ function NetworkManagement () {
 			$('#explanations').hide();
 			$("#exec_train").button( "enable");
 			
-			$(".message").message("hide");; //hide the errors
+			$(".message").message("hide"); //hide the errors
 			
 			var user_message = "You finished with addition of information and are ready for training the system.   ";
 			$(".info_message").message('options',{ message: user_message});
@@ -175,7 +206,11 @@ function NetworkManagement () {
     };
 
     function setNextIcon(self_obj) {
-        var image_src = "/static/images/set/" + self_obj.alphabet[self_obj.image_index] + ".jpg";
+        //TODO
+        var imageBase = self_obj.image_index < self_obj.alphabet.length ? "/static/images/set/" : "/static/images/" +userId +"/set/"
+        var image_src = imageBase + self_obj.allSigns[self_obj.image_index];
+
+//        var image_src = "/static/images/set/" + self_obj.alphabet[self_obj.image_index] + ".jpg";
         $('#training_icon').attr('src', image_src).load(function () {
             this.width;   // Note: $(this).width() will not work for in memory images
 
@@ -184,8 +219,13 @@ function NetworkManagement () {
 
     this.skip = function(event) {
         var self_obj = event.data.ths;
-        ++self_obj.image_index;
-        setNextIcon(self_obj);
+        if(++self_obj.image_index < self_obj.max_image_index){
+            setNextIcon(self_obj);
+        }else{
+            $("#skip").button("disable");
+        }
+
+
         return false;
     };
 
@@ -197,32 +237,25 @@ function NetworkManagement () {
     }
 
     this.fetch_all_signs = function(){
-        var alphabetIcons = []
-
-        for(index in this.alphabet){
-            alphabetIcons.push(this.alphabet[index] + ".jpg");
-        }
-
-        var allSigns = $.merge(alphabetIcons, customFiles);
-
         var div = document.getElementById("allSigns");
         var i = 0;
 
-        while(i < allSigns.length){
+        while(i < this.allSigns.length){
 
             var newDiv = document.createElement('div');
             newDiv.setAttribute("class", "signDiv");
             var newImage = document.createElement("img");
 
+            //TODO
             var imageBase = i < this.alphabet.length ? "/static/images/set/" : "/static/images/" +userId +"/set/"
-            var image_src = imageBase + allSigns[i];
+            var image_src = imageBase + this.allSigns[i];
             newImage.src = image_src;
             newImage.setAttribute("class", "signImage");
             newDiv.appendChild(newImage);
 
             var label = document.createElement('label');
 
-            var symbol = allSigns[i].substr(0, allSigns[i].lastIndexOf("."));
+            var symbol = this.allSigns[i].substr(0, this.allSigns[i].lastIndexOf("."));
             var symbolRateClass = userClassInfo.get(symbol);
             label.innerHTML= symbol;
             label.setAttribute("class", "bottomLabel");

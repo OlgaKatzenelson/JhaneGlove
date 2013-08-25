@@ -4,6 +4,7 @@
 <head>
     <script type="text/javascript">
         window.customFiles = [];
+        window.userId = '{{user.id}}';
     </script>
 <title>{% block title %}JhaneGlow{% endblock %}</title> 
 {% load staticfiles %}
@@ -47,7 +48,7 @@
         
     $(document).ready(function() {
 
-    	display_message = function(msg, elem) {
+        display_message = function(msg, elem) {
     	    var msg_div = $('<div><p>'+msg+'</p></div>');
     	    elem.append(msg_div).fadeIn('slow').animate({opacity: 1.0}, 5000).fadeOut('slow',function() { msg_div.remove(); });
     	};

@@ -1,14 +1,27 @@
 {% extends "base.html" %} {% block content %}
 
+    <script type="text/javascript">
+        var userClassInfo = new Map();
+    </script>
+
+    {% for userClass in userClassInfo %}
+        <script type="text/javascript">
+            userClassString = '{{userClass}}'.replace(/\&#39;/g, "").replace("[", "").replace("]", "");
+            var userClass = userClassString.split(",");
+            userClassInfo.put(userClass[1].trim(), userClass[2].trim());
+        </script>
+
+    {% endfor %}
+
     {% for image in filedict %}
-        <script type="text/javascript">customFiles.push('{{image}}');</script>
+        <script type="text/javascript">window.customFiles.push('{{image}}');</script>
     {% endfor %}
 
 <div id= 'menu_content'>{% csrf_token %}
 	<div id= 'step'>Step : Adding information</div>
     <div id = 'top_menu'>
-        <button id="do_clear">Reset</button>
-        <button id="skip">Skip</button>
+        <button id="do_clear" disabled>Reset</button>
+        <button id="skip" disabled>Skip</button>
         <button id="go_status">Show all</button>
         <button id="add_sign" disabled>Add sign</button>
     </div>
@@ -19,7 +32,7 @@
     <div id = "trainingArea">
         <img id = "training_icon" src="{{ STATIC_URL }}images/set/a.jpg" />
 
-        <button type="submit" id="ready">Ready</button>
+        <button type="submit" id="ready" disabled>Ready</button>
     </div>
 
     <div id = "addingArea" style="display: none">
@@ -41,7 +54,7 @@
     <div id = 'bottom_menu'>
         <div class='clear' />
         <button id="go_home" />
-        <button id="exec_train" >Train</button>
+        <button id="exec_train" disabled>Train</button>
         <button id="do_test" disabled>Test</button>
     </div>
 
@@ -65,9 +78,15 @@
 
         if('{{user.is_authenticated}}' == 'True'){
             $("#add_sign").enable();
+            $("#do_clear").enable();
+            $("#skip").enable();
+            $("#ready").enable();
+            $("#exec_train").enable();
+
         }
 
         var controller = new NetworkManagement();
+        controller.init();
 
         $('#fileupload').ajaxForm({
             beforeSubmit: function() {

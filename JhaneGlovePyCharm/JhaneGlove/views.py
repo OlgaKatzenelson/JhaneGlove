@@ -24,28 +24,38 @@ def index(request):
 
 
 def getUserFiles(request):
+    if(request.user == None or request.user.id == None):
+        return
     path = os.path.dirname(os.path.abspath(__file__))
     userFiles = path + '/../static/images/' + str(request.user.id) + '/set'
     return os.listdir(userFiles)
 
-def status(request):
-    userClasses = UsersClassData.objects.filter(userId = request.user.id)
+
+def getUserClassInfo(request):
+    if(request.user == None or request.user.id == None):
+        return
+    userClasses = UsersClassData.objects.filter(userId=request.user.id)
     userClassInfo = []
     nn = findNNbyUserId(request)
-    if(len(userClasses)>0):
+    if(len(userClasses) > 0):
         for userClassData in userClasses:
             classId = userClassData.classId
-            symbol = ClassData.objects.get_or_create(classId = userClassData.classId)[0].symbol
+            symbol = ClassData.objects.get_or_create(classId=userClassData.classId)[0].symbol
             rate = "unknown"
             if(userClassData.rate != None):
-                if (nn.numbersClose(int(userClassData.rate)+1, userClassData.rate) == True or nn.numbersClose(int(userClassData.rate), userClassData.rate) == True):
+                if (nn.numbersClose(int(userClassData.rate) + 1, userClassData.rate) == True or nn.numbersClose(
+                    int(userClassData.rate), userClassData.rate) == True):
                     rate = "good"
                 else:
-                    rate ="bad"
+                    rate = "bad"
 
-#            userClassInfo.append({'classId':classId, "symbol":str(symbol), "rate":rate})
-            userClassInfo.append([str(classId),str(symbol),rate])
+                #            userClassInfo.append({'classId':classId, "symbol":str(symbol), "rate":rate})
+            userClassInfo.append([str(classId), str(symbol), rate])
+    return userClassInfo
 
+
+def status(request):
+    userClassInfo = getUserClassInfo(request)
 
     c = Context({"userClassInfo": userClassInfo,
         'filedict' : getUserFiles(request) ,
@@ -115,7 +125,11 @@ def recognize(request):
     return render(request, 'JhaneGlove/recognize.html')
 
 def goToTrainPage(request):
-    c = Context({'filedict' : getUserFiles(request)})
+    userClassInfo = getUserClassInfo(request)
+
+    c = Context({"userClassInfo": userClassInfo,
+                 'filedict' : getUserFiles(request) ,
+                 })
     return render(request, 'JhaneGlove/train_page.html', c)
 
 
